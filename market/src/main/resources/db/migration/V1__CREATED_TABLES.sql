@@ -10,6 +10,7 @@ CREATE TABLE games
 (
     id           SERIAL PRIMARY KEY,
     name         VARCHAR(128)                                                           NOT NULL,
+    description  VARCHAR(1024),
     developer_id INTEGER REFERENCES developers (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
     release_date DATE                                                                   NOT NULL,
     price        MONEY                                                                  NOT NULL CHECK (price >= 0::MONEY)
@@ -32,7 +33,7 @@ CREATE TABLE items
 CREATE TABLE items_images
 (
     item_id INTEGER REFERENCES items (id) ON DELETE CASCADE ON UPDATE CASCADE PRIMARY KEY,
-    image BYTEA NOT NULL
+    image   BYTEA NOT NULL
 );
 
 CREATE TABLE selling_items

@@ -1,6 +1,8 @@
 package com.db.app.configuration;
 
 import com.db.app.auth.JwtFilter;
+import com.db.app.configuration.properties.CorsProperties;
+import com.db.app.configuration.properties.UnsecuredEndpointsProperties;
 import com.db.service.JwtService;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
@@ -22,16 +24,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-  private static final String[] SWAGGER_PATHS = {
-    "/v2/api-docs",
-    "/swagger-ui",
-    "/swagger-ui/**",
-    "/swagger-ui/index.html",
-    "/swagger-resources/**",
-    "/webjars/**"
-  };
-
   private final JwtService jwtService;
+  private final CorsProperties corsProperties;
+  private final UnsecuredEndpointsProperties unsecuredEndpointsProperties;
 
   @Override
   public void configure(HttpSecurity http) throws Exception {
@@ -47,7 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
     http.authorizeRequests()
-        .antMatchers(SWAGGER_PATHS)
+        .antMatchers(unsecuredEndpointsProperties.getSwaggerPaths())
         .permitAll()
         .antMatchers("/**")
         .permitAll()
@@ -65,13 +60,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-    configuration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE", "PATCH"));
+    configuration.setAllowedOrigins(Arrays.asList(corsProperties.getOrigins()));
+    configuration.setAllowedMethods(Arrays.asList(corsProperties.getMethods()));
     configuration.setAllowCredentials(true);
-    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+    configuration.setAllowedHeaders(Arrays.asList(corsProperties.getHeaders()));
 
     final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
+    source.registerCorsConfiguration(corsProperties.getUri(), configuration);
     return source;
   }
 }

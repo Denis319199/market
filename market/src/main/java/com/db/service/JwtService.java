@@ -1,5 +1,6 @@
 package com.db.service;
 
+import com.db.app.configuration.properties.JwtClaimsProperties;
 import com.db.app.configuration.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -23,10 +24,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class JwtService {
     private final JwtProperties jwtProperties;
-
-    private final String TOKEN_TYPE_CLAIM = "token_type";
-    private final String USER_ID_CLAIM = "user_id";
-    private final String ROLE_CLAIM = "role";
+    private final JwtClaimsProperties jwtClaimsProperties;
 
     public Claims validateAccessTokenAndGetClaims(@NotNull String token) {
         try {
@@ -34,7 +32,7 @@ public class JwtService {
                     Jwts.parserBuilder().setSigningKey(jwtProperties.getKey()).build().parseClaimsJws(token);
             Claims claims = claimsJws.getBody();
 
-            if (jwtProperties.getAccessTokenName().equals(claims.get(TOKEN_TYPE_CLAIM))) {
+            if (jwtProperties.getAccessTokenName().equals(claims.get(jwtClaimsProperties.getTokenType()))) {
                 return claims;
             }
             return null;
@@ -44,11 +42,11 @@ public class JwtService {
     }
 
     public int getUserId(Claims claims) {
-        return (Integer) claims.get(USER_ID_CLAIM);
+        return (Integer) claims.get(jwtClaimsProperties.getUserId());
     }
 
     public String getRole(Claims claims) {
-        return (String) claims.get(ROLE_CLAIM);
+        return (String) claims.get(jwtClaimsProperties.getRole());
     }
 
     public String getAccessTokenFromRequest(HttpServletRequest request) {
