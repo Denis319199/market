@@ -1,7 +1,5 @@
 package com.db.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,14 +10,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.bytebuddy.description.field.FieldDescription;
 
 @Entity
-@Table(name = "games")
+@Table(name = "items")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Game {
+public class Item {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
@@ -28,15 +27,6 @@ public class Game {
   @Column(name = "name")
   private String name;
 
-  @Column(name = "description")
-  private String description;
-
-  @Column(name = "developer_id")
-  private Integer developerId;
-
-  @Column(name = "release_date")
-  private LocalDate releaseDate;
-
-  @Column(name = "price")
-  private BigDecimal price;
+  @Column(name = "game_id")
+  private Integer gameId;
 }

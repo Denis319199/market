@@ -13,7 +13,7 @@ CREATE TABLE games
     description  VARCHAR(1024),
     developer_id INTEGER REFERENCES developers (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
     release_date DATE                                                                   NOT NULL,
-    price        MONEY                                                                  NOT NULL CHECK (price >= 0::MONEY)
+    price        NUMERIC(2)                                                             NOT NULL CHECK (price >= 0)
 );
 
 CREATE TABLE games_images
@@ -38,9 +38,10 @@ CREATE TABLE items_images
 
 CREATE TABLE selling_items
 (
+    id        SERIAL PRIMARY KEY,
     item_id   INTEGER REFERENCES items (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
     seller_id INTEGER                                                           NOT NULL,
-    price     MONEY                                                             NOT NULL CHECK (price >= 0::MONEY)
+    price     NUMERIC(2)                                                        NOT NULL CHECK (price >= 0)
 );
 
 CREATE TABLE users_items
@@ -58,5 +59,5 @@ CREATE TABLE purchases
     customer_id   INTEGER                                                           NOT NULL,
     item_id       INTEGER REFERENCES items (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
     purchase_date DATE                                                              NOT NULL,
-    price         MONEY                                                             NOT NULL CHECK (price >= 0::MONEY)
+    price         NUMERIC(2)                                                        NOT NULL CHECK (price >= 0)
 );

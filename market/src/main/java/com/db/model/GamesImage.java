@@ -1,7 +1,5 @@
 package com.db.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,31 +10,24 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 @Entity
-@Table(name = "games")
+@Table(name = "games_images")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Game {
+public class GamesImage {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Integer id;
 
-  @Column(name = "name")
-  private String name;
+  @Column(name = "game_id")
+  private Integer gameId;
 
-  @Column(name = "description")
-  private String description;
-
-  @Column(name = "developer_id")
-  private Integer developerId;
-
-  @Column(name = "release_date")
-  private LocalDate releaseDate;
-
-  @Column(name = "price")
-  private BigDecimal price;
+  @Type(type = "org.hibernate.type.BinaryType")
+  @Column(name = "image")
+  private byte[] image;
 }

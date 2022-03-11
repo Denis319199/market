@@ -24,11 +24,11 @@ public class Developer {
   private Integer id;
 
   @Column(name = "name")
-  String name;
+  private String name;
 
   @Column(name = "address")
-  String address;
+  private String address;
 
   @Column(name = "country_id")
-  Integer countryId;
+  private Integer countryId;
 }
