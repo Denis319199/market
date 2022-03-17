@@ -1,6 +1,7 @@
 package com.db.endpoint;
 
 import com.db.exception.ServiceException;
+import com.db.exception.UsersServiceException;
 import com.db.model.UsersImage;
 import com.db.service.UsersService;
 import java.io.IOException;
@@ -32,26 +33,42 @@ public class UsersImagesController {
   @GetMapping(produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
   @ResponseStatus(HttpStatus.OK)
   byte[] getImage(Authentication auth) throws ServiceException {
-    return usersService.getUsersImage((Integer) auth.getPrincipal());
+    try {
+      return usersService.getUsersImage((Integer) auth.getPrincipal());
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.OK)
   void insertImage(@RequestParam MultipartFile image, Authentication auth)
       throws ServiceException, IOException {
-    usersService.insertImage(new UsersImage((Integer) auth.getPrincipal(), image.getBytes()));
+    try {
+      usersService.insertImage(new UsersImage((Integer) auth.getPrincipal(), image.getBytes()));
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
   void updateImage(@RequestParam MultipartFile image, Authentication auth)
       throws ServiceException, IOException {
-    usersService.updateImage(new UsersImage((Integer) auth.getPrincipal(), image.getBytes()));
+    try {
+      usersService.updateImage(new UsersImage((Integer) auth.getPrincipal(), image.getBytes()));
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
-  void deleteImage(Authentication auth) {
-    usersService.deleteImage((Integer) auth.getPrincipal());
+  void deleteImage(Authentication auth) throws ServiceException {
+    try {
+      usersService.deleteImage((Integer) auth.getPrincipal());
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 }

@@ -1,6 +1,7 @@
 package com.db.service;
 
 import com.db.exception.ServiceException;
+import com.db.exception.UsersServiceException;
 import com.db.model.User;
 import com.db.model.UsersImage;
 import com.db.repo.UsersImagesRepo;
@@ -10,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,31 +32,47 @@ public class UsersService {
   }
 
   @Transactional(readOnly = true)
-  public User findUserByUsername(String username) {
-    return usersRepo.findByUsername(username).orElse(null);
+  public User findUserByUsername(String username) throws UsersServiceException {
+    Optional<User> user = usersRepo.findByUsername(username);
+
+    if (user.isEmpty()) {
+      throw new UsersServiceException(UsersServiceException.USER_NOT_FOUND);
+    }
+
+    return user.get();
   }
 
   @Transactional(readOnly = true)
-  public User findUserById(int id) {
-    return usersRepo.findById(id).orElse(null);
+  public User findUserById(int id) throws UsersServiceException {
+    Optional<User> user = usersRepo.findById(id);
+
+    if (user.isEmpty()) {
+      throw new UsersServiceException(UsersServiceException.USER_NOT_FOUND);
+    }
+
+    return user.get();
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public User insertUser(User user) throws ServiceException {
+  public User insertUser(User user) throws UsersServiceException {
     if (usersRepo.existsByUsername(user.getUsername())) {
-      throw new ServiceException(ServiceException.USER_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
+      throw new UsersServiceException(UsersServiceException.USER_ALREADY_EXISTS);
     }
 
     user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-    return usersRepo.save(user);
+    try {
+      return usersRepo.save(user);
+    } catch (DataAccessException ex) {
+      throw new UsersServiceException(ex.getMessage());
+    }
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public User saveUser(User user) throws ServiceException {
+  public User saveUser(User user) throws UsersServiceException {
     User old = findUserById(user.getId());
     if (Objects.isNull(old)) {
-      throw new ServiceException(ServiceException.USER_NOT_FOUND, HttpStatus.BAD_REQUEST);
+      throw new UsersServiceException(UsersServiceException.USER_NOT_FOUND);
     }
 
     String newPassword = user.getPassword();
@@ -63,45 +81,66 @@ public class UsersService {
     }
 
     user.mergeWith(old);
-    return usersRepo.save(user);
+
+    try {
+      return usersRepo.save(user);
+    } catch (DataAccessException ex) {
+      throw new UsersServiceException(ex.getMessage());
+    }
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void deleteUser(int id) {
-    usersRepo.deleteById(id);
+  public void deleteUser(int id) throws UsersServiceException {
+    try {
+      usersRepo.deleteById(id);
+    } catch (DataAccessException ex) {
+      throw new UsersServiceException(ex.getMessage());
+    }
   }
 
   @Transactional(readOnly = true)
-  public byte[] getUsersImage(int userId) throws ServiceException {
+  public byte[] getUsersImage(int userId) throws UsersServiceException {
     Optional<UsersImage> usersImageOptional = usersImagesRepo.findById(userId);
 
     if (usersImageOptional.isEmpty()) {
-      throw new ServiceException(ServiceException.IMAGE_NOT_FOUND, HttpStatus.BAD_REQUEST);
+      throw new UsersServiceException(UsersServiceException.IMAGE_NOT_FOUND);
     }
 
     return usersImageOptional.get().getImage();
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void insertImage(UsersImage usersImage) throws ServiceException {
+  public void insertImage(UsersImage usersImage) throws UsersServiceException {
     if (usersImagesRepo.existsById(usersImage.getUserId())) {
-      throw new ServiceException(ServiceException.IMAGE_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
+      throw new UsersServiceException(UsersServiceException.IMAGE_ALREADY_EXISTS);
     }
 
-    usersImagesRepo.save(usersImage);
+    try {
+      usersImagesRepo.save(usersImage);
+    } catch (DataAccessException ex) {
+      throw new UsersServiceException(ex.getMessage());
+    }
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void updateImage(UsersImage usersImage) throws ServiceException {
+  public void updateImage(UsersImage usersImage) throws UsersServiceException {
     if (!usersImagesRepo.existsById(usersImage.getUserId())) {
-      throw new ServiceException(ServiceException.IMAGE_NOT_FOUND, HttpStatus.BAD_REQUEST);
+      throw new UsersServiceException(UsersServiceException.IMAGE_NOT_FOUND);
     }
 
-    usersImagesRepo.save(usersImage);
+    try {
+      usersImagesRepo.save(usersImage);
+    } catch (DataAccessException ex) {
+      throw new UsersServiceException(ex.getMessage());
+    }
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void deleteImage(int userId) {
-    usersImagesRepo.deleteById(userId);
+  public void deleteImage(int userId) throws UsersServiceException {
+    try {
+      usersImagesRepo.deleteById(userId);
+    } catch (DataAccessException ex) {
+      throw new UsersServiceException(ex.getMessage());
+    }
   }
 }

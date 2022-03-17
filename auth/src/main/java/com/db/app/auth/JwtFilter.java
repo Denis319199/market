@@ -1,14 +1,17 @@
 package com.db.app.auth;
 
+import com.db.model.Role;
 import com.db.service.JwtService;
 import io.jsonwebtoken.Claims;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,11 +29,23 @@ public class JwtFilter extends OncePerRequestFilter {
     try {
       String token = jwtService.getAccessTokenFromRequest(request);
       Claims claims = jwtService.validateAccessTokenAndGetClaims(token);
-      UserDetails user = userDetailsService.loadUserByUsername(claims.getSubject());
-      SecurityContextHolder.getContext()
-          .setAuthentication(
-              new UsernamePasswordAuthenticationToken(
-                  jwtService.getUserId(claims), token, user.getAuthorities()));
+
+      if (jwtService.isServiceRequest(claims)) {
+        SecurityContextHolder.getContext()
+            .setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                    jwtService.getUserId(claims),
+                    token,
+                    List.of(new SimpleGrantedAuthority(Role.ROLE_USER.name()))));
+      } else {
+        UserDetails user = userDetailsService.loadUserByUsername(claims.getSubject());
+        if (user.isEnabled()) {
+          SecurityContextHolder.getContext()
+              .setAuthentication(
+                  new UsernamePasswordAuthenticationToken(
+                      jwtService.getUserId(claims), token, user.getAuthorities()));
+        }
+      }
     } catch (Exception ignored) {
     }
 

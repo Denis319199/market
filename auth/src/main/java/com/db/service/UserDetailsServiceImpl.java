@@ -1,5 +1,6 @@
 package com.db.service;
 
+import com.db.exception.UsersServiceException;
 import com.db.model.User;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +16,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = usersService.findUserByUsername(username);
-    if (Objects.isNull(user)) {
-      throw new UsernameNotFoundException(username);
+    try {
+      User user = usersService.findUserByUsername(username);
+      return org.springframework.security.core.userdetails.User.builder()
+          .username(user.getUsername())
+          .password(user.getPassword())
+          .disabled(!user.getIsEnabled())
+          .authorities(user.getRole().name())
+          .build();
+    } catch (UsersServiceException ex) {
+      throw new UsernameNotFoundException(ex.getMessage());
     }
-
-    return org.springframework.security.core.userdetails.User.builder()
-        .username(user.getUsername())
-        .password(user.getPassword())
-        .disabled(!user.getIsEnabled())
-        .authorities(user.getRole().name())
-        .build();
   }
 }

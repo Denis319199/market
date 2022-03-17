@@ -2,6 +2,7 @@ package com.db.endpoint;
 
 import com.db.exception.ServiceException;
 
+import com.db.exception.UsersServiceException;
 import com.db.model.UsersImage;
 import com.db.service.UsersService;
 import java.io.IOException;
@@ -32,26 +33,42 @@ public class UsersImagesAdminController {
   @GetMapping(produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
   @ResponseStatus(HttpStatus.OK)
   byte[] getImage(@Min(1) int id) throws ServiceException {
-    return usersService.getUsersImage(id);
+    try {
+      return usersService.getUsersImage(id);
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.OK)
   void insertImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int userId)
       throws ServiceException, IOException {
-    usersService.insertImage(new UsersImage(userId, image.getBytes()));
+    try {
+      usersService.insertImage(new UsersImage(userId, image.getBytes()));
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
   void updateImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int userId)
       throws ServiceException, IOException {
-    usersService.updateImage(new UsersImage(userId, image.getBytes()));
+    try {
+      usersService.updateImage(new UsersImage(userId, image.getBytes()));
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
-  void deleteImage(@RequestParam @Min(1) int userId) {
-    usersService.deleteImage(userId);
+  void deleteImage(@RequestParam @Min(1) int userId) throws ServiceException {
+    try {
+      usersService.deleteImage(userId);
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 }

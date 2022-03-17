@@ -2,7 +2,9 @@ package com.db.service;
 
 import com.db.app.configuration.properties.JwtClaimsProperties;
 import com.db.app.configuration.properties.JwtProperties;
+import com.db.app.configuration.properties.JwtServiceRequestProperties;
 import com.db.model.RefreshToken;
+import com.db.model.Role;
 import com.db.model.User;
 import com.db.repo.RefreshTokensRepo;
 import io.jsonwebtoken.Claims;
@@ -24,14 +26,14 @@ import org.springframework.validation.annotation.Validated;
 
 @Service
 @RequiredArgsConstructor
-@Validated
 public class JwtService {
   private final JwtProperties jwtProperties;
   private final JwtClaimsProperties jwtClaimsProperties;
+  private final JwtServiceRequestProperties jwtServiceRequestProperties;
   private final RefreshTokensRepo refreshTokensRepo;
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public String createRefreshToken(@NotNull User user) {
+  public String createRefreshToken(User user) {
     Date now = new Date();
     Date expiration = new Date(now.getTime() + jwtProperties.getRefreshExpirationTime() * 1000);
 
@@ -39,7 +41,7 @@ public class JwtService {
     String token =
         Jwts.builder()
             .claim(jwtClaimsProperties.getUserId(), user.getId())
-            .claim(jwtClaimsProperties.getRole(), user.getRole())
+            .claim(jwtClaimsProperties.getRole(), user.getRole().name())
             .claim(jwtClaimsProperties.getTokenType(), jwtProperties.getRefreshTokenName())
             .setSubject(user.getUsername())
             .setExpiration(expiration)
@@ -63,13 +65,13 @@ public class JwtService {
     return token;
   }
 
-  public String createAccessToken(@NotNull User user) {
+  public String createAccessToken(User user) {
     Date now = new Date();
     Date expiration = new Date(now.getTime() + jwtProperties.getAccessExpirationTime() * 1000);
 
     return Jwts.builder()
         .claim(jwtClaimsProperties.getUserId(), user.getId())
-        .claim(jwtClaimsProperties.getRole(), user.getRole())
+        .claim(jwtClaimsProperties.getRole(), user.getRole().name())
         .claim(jwtClaimsProperties.getTokenType(), jwtProperties.getAccessTokenName())
         .setSubject(user.getUsername())
         .setExpiration(expiration)
@@ -78,13 +80,15 @@ public class JwtService {
         .compact();
   }
 
-  public Claims validateAccessTokenAndGetClaims(@NotNull String token) {
+  public Claims validateAccessTokenAndGetClaims(String token) {
     try {
       Jws<Claims> claimsJws =
           Jwts.parserBuilder().setSigningKey(jwtProperties.getKey()).build().parseClaimsJws(token);
       Claims claims = claimsJws.getBody();
 
-      if (jwtProperties.getAccessTokenName().equals(claims.get(jwtClaimsProperties.getTokenType()))) {
+      if (jwtProperties
+          .getAccessTokenName()
+          .equals(claims.get(jwtClaimsProperties.getTokenType()))) {
         return claims;
       }
       return null;
@@ -93,14 +97,21 @@ public class JwtService {
     }
   }
 
+  public boolean isServiceRequest(Claims claims) {
+    return jwtServiceRequestProperties.getSubject().equals(claims.getSubject())
+        && getUserId(claims) == jwtServiceRequestProperties.getUserId();
+  }
+
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public Claims validateRefreshTokenAndGetClaims(@NotNull String token) {
+  public Claims validateRefreshTokenAndGetClaims(String token) {
     try {
       Jws<Claims> claimsJws =
           Jwts.parserBuilder().setSigningKey(jwtProperties.getKey()).build().parseClaimsJws(token);
       Claims claims = claimsJws.getBody();
 
-      if (!jwtProperties.getRefreshTokenName().equals(claims.get(jwtClaimsProperties.getTokenType()))) {
+      if (!jwtProperties
+          .getRefreshTokenName()
+          .equals(claims.get(jwtClaimsProperties.getTokenType()))) {
         return null;
       }
 

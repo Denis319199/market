@@ -1,6 +1,7 @@
 package com.db.endpoint;
 
 import com.db.exception.ServiceException;
+import com.db.exception.UsersServiceException;
 import com.db.model.User;
 import com.db.model.dto.AuthorizedUserDto;
 import com.db.model.dto.LoginDto;
@@ -57,7 +58,7 @@ public class AuthenticationController {
               .tokenType(jwtService.getTokenType())
               .build();
       return new AuthorizedUserDto(userDto, tokenDto);
-    } catch (AuthenticationException ex) {
+    } catch (AuthenticationException | UsersServiceException ex) {
       throw new ServiceException(
           ServiceException.BAD_AUTHENTICATION + ": " + ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
@@ -72,12 +73,20 @@ public class AuthenticationController {
       throw new ServiceException(ServiceException.INVALID_REFRESH_TOKEN, HttpStatus.BAD_REQUEST);
     }
 
-    User user = usersService.findUserById(jwtService.getUserId(claims));
-    return TokenDto.builder()
-        .accessToken(jwtService.createAccessToken(user))
-        .refreshToken(jwtService.createRefreshToken(user))
-        .tokenType(jwtService.getTokenType())
-        .build();
+    try {
+      User user = usersService.findUserById(jwtService.getUserId(claims));
+      if (user.getIsEnabled()) {
+        return TokenDto.builder()
+            .accessToken(jwtService.createAccessToken(user))
+            .refreshToken(jwtService.createRefreshToken(user))
+            .tokenType(jwtService.getTokenType())
+            .build();
+      }
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    throw new ServiceException(ServiceException.USER_IS_DISABLED, HttpStatus.FORBIDDEN);
   }
 
   @PostMapping("/logout")
@@ -89,23 +98,13 @@ public class AuthenticationController {
     }
   }
 
-  @PostMapping(
-      value = "/signup",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  AuthorizedUserDto signup(@RequestBody @Valid UserInsertDto userInsertDto)
-      throws ServiceException {
-    User user = usersService.insertUser(modelMapper.map(userInsertDto, User.class));
-
-    UserDto userDto = modelMapper.map(user, UserDto.class);
-    TokenDto tokenDto =
-        TokenDto.builder()
-            .accessToken(jwtService.createAccessToken(user))
-            .refreshToken(jwtService.createRefreshToken(user))
-            .tokenType(jwtService.getTokenType())
-            .build();
-
-    return new AuthorizedUserDto(userDto, tokenDto);
+  void signup(@RequestBody @Valid UserInsertDto userInsertDto) throws ServiceException {
+    try {
+      usersService.insertUser(modelMapper.map(userInsertDto, User.class));
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 }

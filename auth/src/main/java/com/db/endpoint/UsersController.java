@@ -1,6 +1,7 @@
 package com.db.endpoint;
 
 import com.db.exception.ServiceException;
+import com.db.exception.UsersServiceException;
 import com.db.model.User;
 import com.db.model.dto.user.UserExtendedDto;
 import com.db.model.dto.user.UserUpdateDto;
@@ -31,9 +32,13 @@ public class UsersController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  UserExtendedDto getUser(Authentication auth) {
-    User user = usersService.findUserById((Integer) auth.getPrincipal());
-    return modelMapper.map(user, UserExtendedDto.class);
+  UserExtendedDto getUser(Authentication auth) throws ServiceException {
+    try {
+      User user = usersService.findUserById((Integer) auth.getPrincipal());
+      return modelMapper.map(user, UserExtendedDto.class);
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @PatchMapping(
@@ -44,6 +49,11 @@ public class UsersController {
       throws ServiceException {
     User user = modelMapper.map(userDto, User.class);
     user.setId((Integer) auth.getPrincipal());
-    return modelMapper.map(usersService.saveUser(user), UserExtendedDto.class);
+
+    try {
+      return modelMapper.map(usersService.saveUser(user), UserExtendedDto.class);
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 }

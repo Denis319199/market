@@ -1,6 +1,7 @@
 package com.db.endpoint;
 
 import com.db.exception.ServiceException;
+import com.db.exception.UsersServiceException;
 import com.db.model.User;
 import com.db.model.dto.user.UserExtendedDto;
 import com.db.model.dto.user.UserInsertDto;
@@ -43,23 +44,40 @@ public class UsersAdminController {
         .collect(Collectors.toList());
   }
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   UserExtendedDto createUser(@RequestBody @Valid UserInsertDto userDto) throws ServiceException {
-    User user = usersService.insertUser(modelMapper.map(userDto, User.class));
-    return modelMapper.map(user, UserExtendedDto.class);
+    try {
+      User user = usersService.insertUser(modelMapper.map(userDto, User.class));
+      return modelMapper.map(user, UserExtendedDto.class);
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
-  @PatchMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PatchMapping(
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  UserExtendedDto updateUser(@RequestBody @Valid UserExtendedUpdateDto userDto) throws ServiceException {
-    User user = usersService.saveUser(modelMapper.map(userDto, User.class));
-    return modelMapper.map(user, UserExtendedDto.class);
+  UserExtendedDto updateUser(@RequestBody @Valid UserExtendedUpdateDto userDto)
+      throws ServiceException {
+    try {
+      User user = usersService.saveUser(modelMapper.map(userDto, User.class));
+      return modelMapper.map(user, UserExtendedDto.class);
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
-  void deleteUser(@RequestParam @Min(1) int id) {
-    usersService.deleteUser(id);
+  void deleteUser(@RequestParam @Min(1) int id) throws ServiceException {
+    try {
+      usersService.deleteUser(id);
+    } catch (UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
   }
 }

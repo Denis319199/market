@@ -5,14 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "security.unsecured")
+@ConfigurationProperties(prefix = "security.jwt.service-request")
 @NoArgsConstructor
 @Getter
 @Setter
-public class UnsecuredEndpointsProperties {
-  private String[] endpoints;
+public class JwtServiceRequestProperties {
+  private String subject;
 
-  private String[] getMethodEndpoints;
-
-  private String[] swaggerPaths;
+  private Integer userId;
 }

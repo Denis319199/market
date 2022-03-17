@@ -6,19 +6,14 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class ServiceException extends Exception {
 
-    final private HttpStatus httpStatus;
+  private final HttpStatus httpStatus;
 
-    public final static String USER_NOT_FOUND = "User not found";
-    public final static String BAD_AUTHENTICATION = "Bad authentication";
-    public final static String INVALID_REFRESH_TOKEN = "Invalid refresh token";
-    public final static String USER_ALREADY_EXISTS = "User already exists";
-    public final static String COUNTRY_ALREADY_EXISTS = "Country already exists";
-    public final static String COUNTRY_NOT_FOUND = "Country not found";
-    public final static String IMAGE_NOT_FOUND = "Image not found";
-    public final static String IMAGE_ALREADY_EXISTS = "Image already exists";
+  public static final String BAD_AUTHENTICATION = "Bad authentication";
+  public static final String INVALID_REFRESH_TOKEN = "Invalid refresh token";
+  public static final String USER_IS_DISABLED = "User is disabled";
 
-    public ServiceException(String message, HttpStatus httpStatus) {
-        super(message);
-        this.httpStatus = httpStatus;
-    }
+  public ServiceException(String message, HttpStatus httpStatus) {
+    super(message);
+    this.httpStatus = httpStatus;
+  }
 }

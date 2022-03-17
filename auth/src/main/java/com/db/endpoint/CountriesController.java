@@ -1,5 +1,6 @@
 package com.db.endpoint;
 
+import com.db.exception.CountriesServiceException;
 import com.db.exception.ServiceException;
 import com.db.model.Country;
 import com.db.model.dto.CountryDto;
@@ -29,33 +30,49 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Validated
 public class CountriesController {
-    private final CountriesService countriesService;
-    private final ModelMapper modelMapper;
+  private final CountriesService countriesService;
+  private final ModelMapper modelMapper;
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    List<Country> getCountries() {
-        return countriesService.getCountries();
-    }
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  List<Country> getCountries() {
+    return countriesService.getCountries();
+  }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    Country createCountry(@RequestBody @Valid CountryDto countryDto) throws ServiceException {
-        return countriesService.insert(modelMapper.map(countryDto, Country.class));
+  @PostMapping(
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  Country createCountry(@RequestBody @Valid CountryDto countryDto) throws ServiceException {
+    try {
+      return countriesService.insert(modelMapper.map(countryDto, Country.class));
+    } catch (CountriesServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+  }
 
-    @PatchMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    Country updateCountry(@RequestBody @Valid CountryUpdateDto countryDto) throws ServiceException {
-        return countriesService.save(modelMapper.map(countryDto, Country.class));
+  @PatchMapping(
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  Country updateCountry(@RequestBody @Valid CountryUpdateDto countryDto) throws ServiceException {
+    try {
+      return countriesService.save(modelMapper.map(countryDto, Country.class));
+    } catch (CountriesServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+  }
 
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    void deleteUser(@RequestParam @Min(1) int id) {
-        countriesService.delete(id);
+  @DeleteMapping
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  void deleteUser(@RequestParam @Min(1) int id) throws ServiceException {
+    try {
+      countriesService.delete(id);
+    } catch (CountriesServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+  }
 }

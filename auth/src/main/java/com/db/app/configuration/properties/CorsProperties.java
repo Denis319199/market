@@ -10,11 +10,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class CorsProperties {
-  String[] origins;
+  private String[] origins;
 
-  String[] methods;
+  private String[] methods;
 
-  String[] headers;
+  private String[] headers;
 
-  String uri;
+  private String uri;
 }
