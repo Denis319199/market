@@ -1,11 +1,13 @@
 package com.db.service;
 
+import com.db.client.AuthClient;
 import com.db.exception.PurchasesServiceException;
 import com.db.model.Purchase;
 import com.db.repo.PurchasesRepo;
 import com.db.utility.Utilities;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PurchasesService {
   private final PurchasesRepo purchasesRepo;
+  private final AuthClient authClient;
 
   @Transactional(readOnly = true)
   public List<Purchase> getAllPurchases(int page, int size) {
@@ -38,6 +41,13 @@ public class PurchasesService {
   public Purchase insertPurchase(Purchase purchase) throws PurchasesServiceException {
     if (purchasesRepo.existsById(purchase.getId())) {
       throw new PurchasesServiceException(PurchasesServiceException.PURCHASE_ALREADY_EXISTS);
+    }
+
+    if (!authClient
+        .checkExistence(List.of(purchase.getCustomerId(), purchase.getSellerId()), true)
+        .stream()
+        .allMatch(val -> val)) {
+      throw new PurchasesServiceException(PurchasesServiceException.BAD_SELLER_OR_CUSTOMER_ID);
     }
 
     try {

@@ -1,5 +1,6 @@
 package com.db.endpoint;
 
+import com.db.client.AuthClient;
 import com.db.exception.DevelopersServiceException;
 import com.db.exception.ServiceException;
 import com.db.model.Developer;
@@ -7,13 +8,13 @@ import com.db.model.dto.developer.DeveloperDto;
 import com.db.model.dto.developer.DeveloperInsertDto;
 import com.db.model.dto.developer.DeveloperUpdateDto;
 import com.db.service.DevelopersService;
+import feign.FeignException;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;

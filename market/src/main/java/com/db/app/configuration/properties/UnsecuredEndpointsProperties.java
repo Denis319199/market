@@ -10,9 +10,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class UnsecuredEndpointsProperties {
-  String[] endpoints;
+  private String[] endpoints;
 
-  String[] getMethodEndpoints;
+  private String[] getMethodEndpoints;
 
-  String[] swaggerPaths;
+  private String[] swaggerPaths;
 }

@@ -5,16 +5,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "security.cors")
+@ConfigurationProperties(prefix = "security.jwt.service-request")
 @NoArgsConstructor
 @Getter
 @Setter
-public class CorsProperties {
-    private String[] origins;
+public class JwtServiceRequestProperties {
+  private String subject;
 
-    private String[] methods;
+  private Integer userId;
 
-    private String[] headers;
+  private String role;
 
-    private String uri;
+  private long expirationTime;
 }

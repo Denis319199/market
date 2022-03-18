@@ -1,10 +1,12 @@
 package com.db.service;
 
+import com.db.client.AuthClient;
 import com.db.exception.SellingItemsServiceException;
 import com.db.model.SellingItem;
 import com.db.repo.SellingItemsRepo;
 import com.db.utility.Utilities;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SellingItemsService {
   private final SellingItemsRepo sellingItemsRepo;
+  private final AuthClient authClient;
 
   @Transactional(readOnly = true)
   public List<SellingItem> getAllSellingItems(int page, int size) {
@@ -42,6 +45,10 @@ public class SellingItemsService {
           SellingItemsServiceException.SELLING_ITEM_ALREADY_EXISTS);
     }
 
+    if (!authClient.checkExistence(List.of(sellingItem.getSellerId()), true).get(0)) {
+      throw new SellingItemsServiceException(SellingItemsServiceException.BAD_SELLER_ID);
+    }
+
     try {
       return sellingItemsRepo.save(sellingItem);
     } catch (DataAccessException ex) {
@@ -53,6 +60,13 @@ public class SellingItemsService {
   public SellingItem updateSellingItem(SellingItem sellingItem)
       throws SellingItemsServiceException {
     SellingItem old = findSellingItemById(sellingItem.getId());
+
+    if (Objects.nonNull(sellingItem.getSellerId())) {
+      if (!authClient.checkExistence(List.of(sellingItem.getSellerId()), true).get(0)) {
+        throw new SellingItemsServiceException(SellingItemsServiceException.BAD_SELLER_ID);
+      }
+    }
+
     Utilities.merge(sellingItem, old);
 
     try {
