@@ -148,6 +148,10 @@ public class JwtService {
     return headerValue.replaceFirst(jwtProperties.getTokenType() + " ", "");
   }
 
+  public String getRole(Claims claims) {
+    return (String) claims.get(jwtClaimsProperties.getRole());
+  }
+
   @Scheduled(cron = "0 0 */12 * * *")
   protected void deleteExpiredRefreshTokens() {
     refreshTokensRepo.deleteAllExpiredTokens();

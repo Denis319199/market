@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(
                     jwtService.getUserId(claims),
                     token,
-                    List.of(new SimpleGrantedAuthority(Role.ROLE_USER.name()))));
+                    List.of(new SimpleGrantedAuthority(jwtService.getRole(claims)))));
       } else {
         UserDetails user = userDetailsService.loadUserByUsername(claims.getSubject());
         if (user.isEnabled()) {

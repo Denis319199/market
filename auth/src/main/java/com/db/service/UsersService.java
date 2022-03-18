@@ -43,6 +43,15 @@ public class UsersService {
   }
 
   @Transactional(readOnly = true)
+  public boolean checkExistence(int id, boolean onlyEnabled) {
+    if (onlyEnabled) {
+      return usersRepo.existsByIdAndIsEnabled(id, true);
+    } else {
+      return usersRepo.existsById(id);
+    }
+  }
+
+  @Transactional(readOnly = true)
   public User findUserById(int id) throws UsersServiceException {
     Optional<User> user = usersRepo.findById(id);
 

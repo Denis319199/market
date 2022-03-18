@@ -8,6 +8,7 @@ import com.db.model.dto.user.UserInsertDto;
 import com.db.model.dto.user.UserExtendedUpdateDto;
 import com.db.service.UsersService;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -36,9 +37,19 @@ public class UsersAdminController {
   private final UsersService usersService;
   private final ModelMapper modelMapper;
 
+  @PostMapping("/existence")
+  @ResponseStatus(HttpStatus.OK)
+  List<Boolean> checkExistence(
+      @RequestBody List<Integer> usersList,
+      @RequestParam(defaultValue = "false") Boolean onlyEnabled) {
+    return usersList.stream()
+        .map(id -> usersService.checkExistence(id, onlyEnabled))
+        .collect(Collectors.toList());
+  }
+
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  List<UserExtendedDto> getUsers(@Min(0) int page, @Min(1) int size) {
+  List<UserExtendedDto> getUsers(@RequestParam @Min(0) int page, @RequestParam @Min(1) int size) {
     return usersService.getUsers(page, size).stream()
         .map(user -> modelMapper.map(user, UserExtendedDto.class))
         .collect(Collectors.toList());
