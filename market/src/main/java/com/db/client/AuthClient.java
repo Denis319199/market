@@ -11,5 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface AuthClient {
   @RequestMapping(method = RequestMethod.POST, value = "/admin/users/existence")
   @Headers({"Content-Type: application/json"})
-  List<Boolean> checkExistence(List<Integer> usersList, @RequestParam Boolean onlyEnabled);
+  List<Boolean> checkUsersExistence(List<Integer> usersList, @RequestParam Boolean onlyEnabled);
+
+  @RequestMapping(method = RequestMethod.POST, value = "/countries/existence")
+  @Headers({"Content-Type: application/json"})
+  List<Boolean> checkCountriesExistence(List<Integer> countriesList);
 }
