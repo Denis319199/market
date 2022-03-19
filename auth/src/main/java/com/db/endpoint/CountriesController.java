@@ -7,6 +7,7 @@ import com.db.model.dto.CountryDto;
 import com.db.model.dto.CountryUpdateDto;
 import com.db.service.CountriesService;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,15 @@ public class CountriesController {
   @ResponseStatus(HttpStatus.OK)
   List<Country> getCountries() {
     return countriesService.getCountries();
+  }
+
+  @PostMapping("/existence")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  List<Boolean> checkExistence(@RequestBody List<Integer> countriesList) {
+    return countriesList.stream()
+        .map(countriesService::checkExistence)
+        .collect(Collectors.toList());
   }
 
   @PostMapping(

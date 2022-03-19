@@ -36,6 +36,11 @@ public class CountriesService {
     }
   }
 
+  @Transactional(readOnly = true)
+  public boolean checkExistence(int id) {
+    return countriesRepo.existsById(id);
+  }
+
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Country save(Country country) throws CountriesServiceException {
     if (countriesRepo.existsById(country.getId())) {
