@@ -1,5 +1,6 @@
 package com.db.app.auth;
 
+import com.db.exception.JwtServiceException;
 import com.db.service.JwtService;
 import io.jsonwebtoken.Claims;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
                   jwtService.getUserId(claims),
                   token,
                   List.of(new SimpleGrantedAuthority(jwtService.getRole(claims)))));
-    } catch (Exception ignored) {
+    } catch (JwtServiceException ignored) {
     }
 
     chain.doFilter(request, response);
