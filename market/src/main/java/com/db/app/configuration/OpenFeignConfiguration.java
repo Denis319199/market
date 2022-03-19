@@ -1,6 +1,7 @@
 package com.db.app.configuration;
 
 import com.db.app.configuration.properties.JwtProperties;
+
 import com.db.service.JwtService;
 import feign.RequestInterceptor;
 import lombok.RequiredArgsConstructor;
