@@ -1,6 +1,8 @@
 package com.db.service.impl;
 
 import com.db.client.AuthClient;
+import com.db.exception.SellingItemsServiceException;
+import com.db.exception.ServiceException;
 import com.db.exception.UsersItemsServiceException;
 import com.db.model.UsersItem;
 import com.db.model.UsersItemId;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,6 +92,46 @@ public class UsersItemsServiceImpl implements UsersItemsService {
       usersItemsRepo.deleteById(id);
     } catch (DataAccessException ex) {
       throw new UsersItemsServiceException(ex.getMessage());
+    }
+  }
+
+  @Override
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public void addItemToUser(int userId, int itemId) throws ServiceException {
+    try {
+      UsersItem usersItem = findUsersItemByUsersItemId(new UsersItemId(userId, itemId));
+      usersItem.setQuantity(usersItem.getQuantity() + 1);
+      updateUsersItem(usersItem);
+    } catch (UsersItemsServiceException ex) {
+      if (ex.getMessage().equals(UsersItemsServiceException.USERS_ITEM_NOT_FOUND)) {
+        try {
+          insertUsersItem(UsersItem.builder().userId(userId).itemId(itemId).quantity(1).build());
+        } catch (UsersItemsServiceException exception) {
+          throw new ServiceException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
+    }
+  }
+
+  @Override
+  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  public void takeItemFromUser(int userId, int itemId)
+      throws UsersItemsServiceException, ServiceException {
+    UsersItemId usersItemId = new UsersItemId(userId, itemId);
+    UsersItem usersItem = findUsersItemByUsersItemId(usersItemId);
+
+    try {
+      // decreases quantity of user's items or removes it if a user has only one
+      int quantity = usersItem.getQuantity();
+      if (quantity == 1) {
+        deleteUsersItem(usersItemId);
+      } else {
+        usersItem.setQuantity(quantity - 1);
+        updateUsersItem(usersItem);
+      }
+
+    } catch (UsersItemsServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

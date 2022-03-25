@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Profile({"prod", "!unsecured"})
+@Profile({"prod", "secured"})
 public class JwtServiceImpl implements JwtService {
   protected final JwtProperties jwtProperties;
   protected final JwtClaimsProperties jwtClaimsProperties;

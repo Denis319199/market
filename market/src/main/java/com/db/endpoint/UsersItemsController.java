@@ -13,6 +13,7 @@ import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +39,7 @@ public class UsersItemsController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   UsersItem insertUsersItem(@RequestBody @Valid UsersItemInsertDto usersItemDto)
       throws ServiceException {
     try {
@@ -48,6 +50,7 @@ public class UsersItemsController {
   }
 
   @PatchMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   UsersItem updateUsersItem(@RequestBody @Valid UsersItemUpdateDto usersItemDto)
       throws ServiceException {
     try {
@@ -58,6 +61,7 @@ public class UsersItemsController {
   }
 
   @DeleteMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public void deleteUsersItem(@RequestBody @Valid UsersItemId id) throws ServiceException {
     try {
       usersItemsService.deleteUsersItem(id);

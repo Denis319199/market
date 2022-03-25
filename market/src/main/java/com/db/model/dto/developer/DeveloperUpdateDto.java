@@ -1,6 +1,5 @@
-package com.db.model.dto.sellingItem;
+package com.db.model.dto.developer;
 
-import java.math.BigDecimal;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +8,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SellingItemInsertDto {
-  @Min(1)
-  private Integer itemId;
+public class DeveloperUpdateDto {
+  private String name;
+
+  private String address;
 
   @Min(1)
-  private BigDecimal price;
+  private Integer countryId;
 }

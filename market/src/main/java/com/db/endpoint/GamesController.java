@@ -14,6 +14,7 @@ import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +54,7 @@ public class GamesController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   GameDto insertGame(@RequestBody @Valid GameInsertDto gameDto) throws ServiceException {
     try {
       Game game = gamesService.insertGame(modelMapper.map(gameDto, Game.class));
@@ -63,6 +65,7 @@ public class GamesController {
   }
 
   @PatchMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   GameDto updateGame(@RequestBody @Valid GameUpdateDto gameDto) throws ServiceException {
     try {
       Game game = gamesService.updateGame(modelMapper.map(gameDto, Game.class));
@@ -73,6 +76,7 @@ public class GamesController {
   }
 
   @DeleteMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   void deleteGame(@RequestParam @Min(value = 1, message = "must be more than 0") int id) throws ServiceException {
     try {
       gamesService.deleteGame(id);

@@ -9,6 +9,7 @@ import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,7 @@ public class GamesImagesController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   void insertGamesImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int gameId)
       throws IOException, ServiceException {
     try {
@@ -47,6 +49,7 @@ public class GamesImagesController {
   }
 
   @PatchMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   void updateGamesImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int gameId)
       throws IOException, ServiceException {
     try {
@@ -57,6 +60,7 @@ public class GamesImagesController {
   }
 
   @DeleteMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   void deleteGamesImage(@RequestParam @Min(1) int id) throws ServiceException {
     try {
       gamesService.deleteGamesImage(id);

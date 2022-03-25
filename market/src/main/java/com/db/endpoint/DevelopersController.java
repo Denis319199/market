@@ -5,6 +5,7 @@ import com.db.exception.ServiceException;
 import com.db.model.Developer;
 import com.db.model.dto.developer.DeveloperDto;
 import com.db.model.dto.developer.DeveloperInsertDto;
+import com.db.model.dto.developer.DeveloperExtendedUpdateDto;
 import com.db.model.dto.developer.DeveloperUpdateDto;
 import com.db.service.DevelopersService;
 import java.util.List;
@@ -14,6 +15,8 @@ import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,11 +54,12 @@ public class DevelopersController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   DeveloperDto insertDeveloper(@RequestBody @Valid DeveloperInsertDto developerDto)
-      throws ServiceException {
+          throws ServiceException {
     try {
       Developer developer =
-          developersService.insertDeveloper(modelMapper.map(developerDto, Developer.class));
+              developersService.insertDeveloper(modelMapper.map(developerDto, Developer.class));
       return modelMapper.map(developer, DeveloperDto.class);
     } catch (DevelopersServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -63,11 +67,12 @@ public class DevelopersController {
   }
 
   @PatchMapping
-  DeveloperDto updateDeveloper(@RequestBody @Valid DeveloperUpdateDto developerDto)
-      throws ServiceException {
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  DeveloperDto updateDeveloper(@RequestBody @Valid DeveloperExtendedUpdateDto developerDto)
+          throws ServiceException {
     try {
       Developer developer =
-          developersService.updateDeveloper(modelMapper.map(developerDto, Developer.class));
+              developersService.updateDeveloper(modelMapper.map(developerDto, Developer.class));
       return modelMapper.map(developer, DeveloperDto.class);
     } catch (DevelopersServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -75,6 +80,7 @@ public class DevelopersController {
   }
 
   @DeleteMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   void deleteDeveloper(@RequestParam @Min(1) int id) throws ServiceException {
     try {
       developersService.deleteDeveloper(id);

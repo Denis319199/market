@@ -4,7 +4,10 @@ import com.db.client.AuthClient;
 import com.db.exception.SellingItemsServiceException;
 import com.db.model.SellingItem;
 import com.db.repo.SellingItemsRepo;
+import com.db.service.PurchasesService;
+import com.db.service.UsersItemsService;
 import com.db.service.impl.SellingItemsServiceImpl;
+import com.db.utility.SqlQueryExecutor;
 import com.db.utility.Utilities;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
@@ -15,8 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Profile("auth-service-disabled")
 public class SellingItemsServiceDev extends SellingItemsServiceImpl {
-  public SellingItemsServiceDev(SellingItemsRepo sellingItemsRepo, AuthClient authClient) {
-    super(sellingItemsRepo, authClient);
+  public SellingItemsServiceDev(
+      SellingItemsRepo sellingItemsRepo,
+      AuthClient authClient,
+      UsersItemsService usersItemsService,
+      PurchasesService purchasesService, SqlQueryExecutor sqlQueryExecutor) {
+    super(sellingItemsRepo, authClient, usersItemsService, purchasesService, sqlQueryExecutor);
   }
 
   @Override

@@ -44,8 +44,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     http.authorizeRequests()
         .antMatchers(unsecuredEndpointsProperties.getSwaggerPaths())
         .permitAll()
-        .antMatchers("/**")
-        .permitAll()
         .anyRequest()
         .authenticated();
 

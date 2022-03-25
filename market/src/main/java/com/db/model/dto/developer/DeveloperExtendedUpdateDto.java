@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeveloperUpdateDto {
+public class DeveloperExtendedUpdateDto {
   @NotNull
   @Min(1)
   private Integer id;

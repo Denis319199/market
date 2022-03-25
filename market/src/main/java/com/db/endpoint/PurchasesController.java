@@ -11,6 +11,7 @@ import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,32 +32,5 @@ public class PurchasesController {
   @GetMapping
   List<Purchase> getAllPurchases(int page, int size) {
     return purchasesService.getAllPurchases(page, size);
-  }
-
-  @PostMapping
-  Purchase insertPurchase(PurchaseInsertDto purchaseDto) throws ServiceException {
-    try {
-      return purchasesService.insertPurchase(modelMapper.map(purchaseDto, Purchase.class));
-    } catch (PurchasesServiceException ex) {
-      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @PatchMapping
-  Purchase updatePurchase(PurchaseUpdateDto purchaseDto) throws ServiceException {
-    try {
-      return purchasesService.updatePurchase(modelMapper.map(purchaseDto, Purchase.class));
-    } catch (PurchasesServiceException ex) {
-      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @DeleteMapping
-  void deletePurchase(@RequestParam @Min(1) int id) throws ServiceException {
-    try {
-      purchasesService.deletePurchase(id);
-    } catch (PurchasesServiceException ex) {
-      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
   }
 }
