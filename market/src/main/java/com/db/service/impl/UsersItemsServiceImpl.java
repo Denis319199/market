@@ -1,7 +1,6 @@
 package com.db.service.impl;
 
 import com.db.client.AuthClient;
-import com.db.exception.SellingItemsServiceException;
 import com.db.exception.ServiceException;
 import com.db.exception.UsersItemsServiceException;
 import com.db.model.UsersItem;

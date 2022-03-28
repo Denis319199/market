@@ -1,6 +1,5 @@
 package com.db.model.dto.developer;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

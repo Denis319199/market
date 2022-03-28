@@ -9,7 +9,6 @@ import com.db.utility.Utilities;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
