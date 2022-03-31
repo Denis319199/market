@@ -7,6 +7,8 @@ import com.db.model.dto.user.UserExtendedDto;
 import com.db.model.dto.user.UserInsertDto;
 import com.db.model.dto.user.UserExtendedUpdateDto;
 import com.db.service.UsersService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -33,12 +35,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Validated
 @PreAuthorize("hasRole('ROLE_ADMIN')")
+@Api
 public class UsersAdminController {
   private final UsersService usersService;
   private final ModelMapper modelMapper;
 
   @PostMapping("/existence")
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   List<Boolean> checkExistence(
       @RequestBody List<Integer> usersList,
       @RequestParam(defaultValue = "false") Boolean onlyEnabled) {
@@ -49,6 +53,7 @@ public class UsersAdminController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   List<UserExtendedDto> getUsers(@RequestParam @Min(0) int page, @RequestParam @Min(1) int size) {
     return usersService.getUsers(page, size).stream()
         .map(user -> modelMapper.map(user, UserExtendedDto.class))
@@ -59,6 +64,7 @@ public class UsersAdminController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   UserExtendedDto createUser(@RequestBody @Valid UserInsertDto userDto) throws ServiceException {
     try {
       User user = usersService.insertUser(modelMapper.map(userDto, User.class));
@@ -72,6 +78,7 @@ public class UsersAdminController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   UserExtendedDto updateUser(@RequestBody @Valid UserExtendedUpdateDto userDto)
       throws ServiceException {
     try {
@@ -84,6 +91,7 @@ public class UsersAdminController {
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   void deleteUser(@RequestParam @Min(1) int id) throws ServiceException {
     try {
       usersService.deleteUser(id);

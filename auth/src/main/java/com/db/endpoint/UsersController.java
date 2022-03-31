@@ -6,6 +6,8 @@ import com.db.model.User;
 import com.db.model.dto.user.UserExtendedDto;
 import com.db.model.dto.user.UserUpdateDto;
 import com.db.service.UsersService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,12 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Validated
+@Api
 public class UsersController {
   private final UsersService usersService;
   private final ModelMapper modelMapper;
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   UserExtendedDto getUser(Authentication auth) throws ServiceException {
     try {
       User user = usersService.findUserById((Integer) auth.getPrincipal());
@@ -45,6 +49,7 @@ public class UsersController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   UserExtendedDto updateUser(@RequestBody @Valid UserUpdateDto userDto, Authentication auth)
       throws ServiceException {
     User user = modelMapper.map(userDto, User.class);

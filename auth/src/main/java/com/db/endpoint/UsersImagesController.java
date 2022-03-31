@@ -4,6 +4,8 @@ import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
 import com.db.model.UsersImage;
 import com.db.service.UsersService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import java.io.IOException;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +29,13 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Validated
 @PreAuthorize("hasRole('ROLE_USER')")
+@Api
 public class UsersImagesController {
   private final UsersService usersService;
 
   @GetMapping(produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   byte[] getImage(Authentication auth) throws ServiceException {
     try {
       return usersService.getUsersImage((Integer) auth.getPrincipal());
@@ -42,6 +46,7 @@ public class UsersImagesController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   void insertImage(@RequestParam MultipartFile image, Authentication auth)
       throws ServiceException, IOException {
     try {
@@ -53,6 +58,7 @@ public class UsersImagesController {
 
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   void updateImage(@RequestParam MultipartFile image, Authentication auth)
       throws ServiceException, IOException {
     try {
@@ -64,6 +70,7 @@ public class UsersImagesController {
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   void deleteImage(Authentication auth) throws ServiceException {
     try {
       usersService.deleteImage((Integer) auth.getPrincipal());

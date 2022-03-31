@@ -6,6 +6,8 @@ import com.db.model.Country;
 import com.db.model.dto.CountryDto;
 import com.db.model.dto.CountryUpdateDto;
 import com.db.service.CountriesService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -30,12 +32,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/countries")
 @RequiredArgsConstructor
 @Validated
+@Api
 public class CountriesController {
   private final CountriesService countriesService;
   private final ModelMapper modelMapper;
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
+  @ApiOperation("")
   List<Country> getCountries() {
     return countriesService.getCountries();
   }
@@ -43,6 +47,7 @@ public class CountriesController {
   @PostMapping("/existence")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @ApiOperation("")
   List<Boolean> checkExistence(@RequestBody List<Integer> countriesList) {
     return countriesList.stream()
         .map(countriesService::checkExistence)
@@ -54,6 +59,7 @@ public class CountriesController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @ApiOperation("")
   Country createCountry(@RequestBody @Valid CountryDto countryDto) throws ServiceException {
     try {
       return countriesService.insert(modelMapper.map(countryDto, Country.class));
@@ -67,6 +73,7 @@ public class CountriesController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @ApiOperation("")
   Country updateCountry(@RequestBody @Valid CountryUpdateDto countryDto) throws ServiceException {
     try {
       return countriesService.save(modelMapper.map(countryDto, Country.class));
@@ -78,6 +85,7 @@ public class CountriesController {
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @ApiOperation("")
   void deleteUser(@RequestParam @Min(1) int id) throws ServiceException {
     try {
       countriesService.delete(id);
