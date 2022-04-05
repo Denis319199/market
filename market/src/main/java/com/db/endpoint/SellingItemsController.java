@@ -60,6 +60,17 @@ public class SellingItemsController {
     }
   }
 
+  @PostMapping("/purchase")
+  @PreAuthorize("hasRole('ROLE_USER')")
+  @ResponseStatus(HttpStatus.OK)
+  void purchaseItem(@RequestParam @Min(1) int itemId, @RequestParam @Min(1) int customerId) throws ServiceException {
+    try {
+      sellingItemsService.purchaseItem(itemId, customerId);
+    } catch (SellingItemsServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+  }
+
   @DeleteMapping
   @PreAuthorize("hasRole('ROLE_USER')")
   void removeItemFromSale(@RequestParam @Min(1) int id, Authentication auth)

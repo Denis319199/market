@@ -75,7 +75,7 @@ public class JwtServiceImpl implements JwtService {
 
     String prefix = jwtProperties.getTokenType() + " ";
 
-    if (Objects.isNull(headerValue) ||  headerValue.contains(prefix)) {
+    if (Objects.isNull(headerValue) ||  !headerValue.contains(prefix)) {
       throw new JwtServiceException(JwtServiceException.TOKEN_NOT_FOUND);
     }
 
