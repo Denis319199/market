@@ -14,8 +14,7 @@ import com.db.service.UsersService;
 import com.db.utility.validation.annotation.GroupValid;
 import com.db.utility.validation.group.PlainUserGroup;
 import io.jsonwebtoken.Claims;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.Objects;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Validated
-@Api
 public class AuthenticationController {
 
   private final UsersService usersService;
@@ -49,7 +47,7 @@ public class AuthenticationController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   AuthorizedUserDto authenticate(@RequestBody @Valid LoginDto loginDto) throws ServiceException {
     try {
       Authentication auth =
@@ -73,7 +71,7 @@ public class AuthenticationController {
 
   @PostMapping(value = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   TokenDto refreshToken(@RequestParam String token) throws ServiceException {
     Claims claims = jwtService.validateRefreshTokenAndGetClaims(token);
 
@@ -99,7 +97,7 @@ public class AuthenticationController {
 
   @PostMapping("/logout")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   void logout(@RequestParam String token) throws ServiceException {
     Claims claims = jwtService.validateRefreshTokenAndGetClaims(token);
     if (Objects.isNull(claims)) {
@@ -109,7 +107,7 @@ public class AuthenticationController {
 
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   void signup(@RequestBody @GroupValid(PlainUserGroup.class) UserInsertDto userExtendedInsertDto) throws ServiceException {
     try {
       User user = modelMapper.map(userExtendedInsertDto, User.class);

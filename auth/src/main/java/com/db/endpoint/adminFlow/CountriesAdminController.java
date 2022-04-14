@@ -3,12 +3,10 @@ package com.db.endpoint.adminFlow;
 import com.db.exception.CountriesServiceException;
 import com.db.exception.ServiceException;
 import com.db.model.Country;
-import com.db.model.dto.country.CountryDto;
 import com.db.model.dto.country.CountryInsertDto;
 import com.db.model.dto.country.CountryUpdateDto;
 import com.db.service.CountriesService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -32,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/country")
 @RequiredArgsConstructor
 @Validated
-@Api
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class CountriesAdminController {
   private final CountriesService countriesService;
@@ -40,7 +37,7 @@ public class CountriesAdminController {
 
   @PostMapping("/existence")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   List<Boolean> checkExistence(@RequestBody List<Integer> countriesList) {
     return countriesList.stream()
         .map(countriesService::checkCountryExistence)
@@ -51,7 +48,7 @@ public class CountriesAdminController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  @ApiOperation("")
+  @Operation(summary = "")
   Country createCountry(@RequestBody @Valid CountryInsertDto countryDto) throws ServiceException {
     try {
       return countriesService.insertCountry(modelMapper.map(countryDto, Country.class));
@@ -64,7 +61,7 @@ public class CountriesAdminController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   Country updateCountry(@RequestBody @Valid CountryUpdateDto countryDto) throws ServiceException {
     try {
       return countriesService.updateCountry(modelMapper.map(countryDto, Country.class));
@@ -75,7 +72,7 @@ public class CountriesAdminController {
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   void deleteCountry(@RequestParam @Min(1) int id) throws ServiceException {
     try {
       countriesService.deleteCountry(id);

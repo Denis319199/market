@@ -8,9 +8,8 @@ import com.db.model.dto.user.UserUpdateDto;
 import com.db.service.UsersService;
 import com.db.utility.validation.annotation.GroupValid;
 import com.db.utility.validation.group.PlainUserGroup;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import javax.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -30,15 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 @Validated
-@Api
 public class UsersController {
   private final UsersService usersService;
   private final ModelMapper modelMapper;
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
-  UserExtendedDto getUser(Authentication auth) throws ServiceException {
+  @Operation(summary = "")
+  UserExtendedDto getUser(@Parameter(hidden = true) Authentication auth) throws ServiceException {
     try {
       User user = usersService.findUserById((Integer) auth.getPrincipal());
       return modelMapper.map(user, UserExtendedDto.class);
@@ -51,8 +49,10 @@ public class UsersController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
-  UserExtendedDto updateUser(@RequestBody @GroupValid(PlainUserGroup.class) UserUpdateDto userDto, Authentication auth)
+  @Operation(summary = "")
+  UserExtendedDto updateUser(
+      @RequestBody @GroupValid(PlainUserGroup.class) UserUpdateDto userDto,
+      @Parameter(hidden = true) Authentication auth)
       throws ServiceException {
     User user = modelMapper.map(userDto, User.class);
     user.setId((Integer) auth.getPrincipal());

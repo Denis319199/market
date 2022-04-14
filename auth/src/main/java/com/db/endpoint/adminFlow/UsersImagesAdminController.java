@@ -5,8 +5,7 @@ import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
 import com.db.model.UsersImage;
 import com.db.service.UsersService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +28,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Validated
 @PreAuthorize("hasRole('ROLE_ADMIN')")
-@Api
 public class UsersImagesAdminController {
   private final UsersService usersService;
 
   @GetMapping(produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   byte[] getImage(@Min(1) int id) throws ServiceException {
     try {
       return usersService.getUsersImage(id);
@@ -46,7 +44,7 @@ public class UsersImagesAdminController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @ApiOperation("")
+  @Operation(summary = "")
   void insertImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int userId)
       throws ServiceException, IOException {
     try {
@@ -58,7 +56,7 @@ public class UsersImagesAdminController {
 
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   void updateImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int userId)
       throws ServiceException, IOException {
     try {
@@ -70,7 +68,7 @@ public class UsersImagesAdminController {
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   void deleteImage(@RequestParam @Min(1) int userId) throws ServiceException {
     try {
       usersService.deleteImage(userId);

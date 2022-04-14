@@ -9,11 +9,9 @@ import com.db.model.dto.user.UserUpdateDto;
 import com.db.service.UsersService;
 import com.db.utility.validation.annotation.GroupValid;
 import com.db.utility.validation.group.AdminGroup;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -36,14 +34,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Validated
 @PreAuthorize("hasRole('ROLE_ADMIN')")
-@Api
 public class UsersAdminController {
   private final UsersService usersService;
   private final ModelMapper modelMapper;
 
   @PostMapping("/existence")
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   List<Boolean> checkExistence(
       @RequestBody List<Integer> usersList,
       @RequestParam(defaultValue = "false") Boolean onlyEnabled) {
@@ -54,7 +51,7 @@ public class UsersAdminController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   List<UserExtendedDto> getUsers(@RequestParam @Min(0) int page, @RequestParam @Min(1) int size) {
     return usersService.getUsers(page, size).stream()
         .map(user -> modelMapper.map(user, UserExtendedDto.class))
@@ -65,7 +62,7 @@ public class UsersAdminController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
-  @ApiOperation("")
+  @Operation(summary = "")
   UserExtendedDto createUser(@RequestBody @GroupValid(AdminGroup.class) UserInsertDto userDto) throws ServiceException {
     try {
       User user = usersService.insertUser(modelMapper.map(userDto, User.class));
@@ -79,7 +76,7 @@ public class UsersAdminController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   UserExtendedDto updateUser(@RequestBody @GroupValid(AdminGroup.class) UserUpdateDto userDto)
       throws ServiceException {
     try {
@@ -92,7 +89,7 @@ public class UsersAdminController {
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   void deleteUser(@RequestParam @Min(1) int id) throws ServiceException {
     try {
       usersService.deleteUser(id);

@@ -4,7 +4,7 @@ import com.db.exception.CountriesServiceException;
 import com.db.exception.ServiceException;
 import com.db.model.Country;
 import com.db.service.CountriesService;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -27,14 +27,14 @@ public class CountriesController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   public List<Country> getCountries() {
     return countriesService.getCountries();
   }
 
-  @GetMapping(value = "/{countryId}",produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/{countryId}", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
+  @Operation(summary = "")
   public Country getCountry(@PathVariable @Min(1) int countryId) throws ServiceException {
     try {
       return countriesService.findCountryById(countryId);
