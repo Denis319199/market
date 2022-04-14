@@ -1,4 +1,4 @@
-package com.db.endpoint;
+package com.db.endpoint.userFlow;
 
 import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @PreAuthorize("hasRole('ROLE_USER')")
-@RequestMapping("/users")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @Validated
 @Api
@@ -56,7 +56,7 @@ public class UsersController {
     user.setId((Integer) auth.getPrincipal());
 
     try {
-      return modelMapper.map(usersService.saveUser(user), UserExtendedDto.class);
+      return modelMapper.map(usersService.updateUser(user), UserExtendedDto.class);
     } catch (UsersServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }

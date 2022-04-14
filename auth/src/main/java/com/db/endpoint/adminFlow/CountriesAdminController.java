@@ -1,16 +1,14 @@
-package com.db.endpoint;
+package com.db.endpoint.adminFlow;
 
+import com.db.exception.CountriesServiceException;
 import com.db.exception.ServiceException;
-import com.db.exception.UsersServiceException;
-import com.db.model.User;
-import com.db.model.dto.user.UserExtendedDto;
-import com.db.model.dto.user.UserInsertDto;
-import com.db.model.dto.user.UserExtendedUpdateDto;
-import com.db.service.UsersService;
+import com.db.model.Country;
+import com.db.model.dto.country.CountryDto;
+import com.db.model.dto.country.CountryUpdateDto;
+import com.db.service.CountriesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -21,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,45 +28,33 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping("/admin/country")
 @RequiredArgsConstructor
 @Validated
-@PreAuthorize("hasRole('ROLE_ADMIN')")
 @Api
-public class UsersAdminController {
-  private final UsersService usersService;
+@PreAuthorize("hasRole('ROLE_ADMIN')")
+public class CountriesAdminController {
+  private final CountriesService countriesService;
   private final ModelMapper modelMapper;
 
   @PostMapping("/existence")
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("")
-  List<Boolean> checkExistence(
-      @RequestBody List<Integer> usersList,
-      @RequestParam(defaultValue = "false") Boolean onlyEnabled) {
-    return usersList.stream()
-        .map(id -> usersService.checkExistence(id, onlyEnabled))
-        .collect(Collectors.toList());
-  }
-
-  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.OK)
-  @ApiOperation("")
-  List<UserExtendedDto> getUsers(@RequestParam @Min(0) int page, @RequestParam @Min(1) int size) {
-    return usersService.getUsers(page, size).stream()
-        .map(user -> modelMapper.map(user, UserExtendedDto.class))
+  List<Boolean> checkExistence(@RequestBody List<Integer> countriesList) {
+    return countriesList.stream()
+        .map(countriesService::checkCountryExistence)
         .collect(Collectors.toList());
   }
 
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.CREATED)
   @ApiOperation("")
-  UserExtendedDto createUser(@RequestBody @Valid UserInsertDto userDto) throws ServiceException {
+  Country createCountry(@RequestBody @Valid CountryDto countryDto) throws ServiceException {
     try {
-      User user = usersService.insertUser(modelMapper.map(userDto, User.class));
-      return modelMapper.map(user, UserExtendedDto.class);
-    } catch (UsersServiceException ex) {
+      return countriesService.insertCountry(modelMapper.map(countryDto, Country.class));
+    } catch (CountriesServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
@@ -79,12 +64,10 @@ public class UsersAdminController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("")
-  UserExtendedDto updateUser(@RequestBody @Valid UserExtendedUpdateDto userDto)
-      throws ServiceException {
+  Country updateCountry(@RequestBody @Valid CountryUpdateDto countryDto) throws ServiceException {
     try {
-      User user = usersService.saveUser(modelMapper.map(userDto, User.class));
-      return modelMapper.map(user, UserExtendedDto.class);
-    } catch (UsersServiceException ex) {
+      return countriesService.updateCountry(modelMapper.map(countryDto, Country.class));
+    } catch (CountriesServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
@@ -92,10 +75,10 @@ public class UsersAdminController {
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("")
-  void deleteUser(@RequestParam @Min(1) int id) throws ServiceException {
+  void deleteCountry(@RequestParam @Min(1) int id) throws ServiceException {
     try {
-      usersService.deleteUser(id);
-    } catch (UsersServiceException ex) {
+      countriesService.deleteCountry(id);
+    } catch (CountriesServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }

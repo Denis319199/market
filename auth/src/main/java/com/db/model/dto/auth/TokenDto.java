@@ -1,4 +1,4 @@
-package com.db.model.dto;
+package com.db.model.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

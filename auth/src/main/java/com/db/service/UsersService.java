@@ -1,6 +1,5 @@
 package com.db.service;
 
-import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
 import com.db.model.User;
 import com.db.model.UsersImage;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -78,7 +76,7 @@ public class UsersService {
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public User saveUser(User user) throws UsersServiceException {
+  public User updateUser(User user) throws UsersServiceException {
     User old = findUserById(user.getId());
     if (Objects.isNull(old)) {
       throw new UsersServiceException(UsersServiceException.USER_NOT_FOUND);

@@ -1,14 +1,11 @@
 package com.db.service;
 
 import com.db.exception.CountriesServiceException;
-import com.db.exception.ServiceException;
 import com.db.model.Country;
 import com.db.repo.CountriesRepo;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +21,7 @@ public class CountriesService {
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public Country insert(Country country) throws CountriesServiceException {
+  public Country insertCountry(Country country) throws CountriesServiceException {
     if (countriesRepo.existsById(country.getId())) {
       throw new CountriesServiceException(CountriesServiceException.COUNTRY_ALREADY_EXISTS);
     }
@@ -37,12 +34,12 @@ public class CountriesService {
   }
 
   @Transactional(readOnly = true)
-  public boolean checkExistence(int id) {
+  public boolean checkCountryExistence(int id) {
     return countriesRepo.existsById(id);
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public Country save(Country country) throws CountriesServiceException {
+  public Country updateCountry(Country country) throws CountriesServiceException {
     if (countriesRepo.existsById(country.getId())) {
       throw new CountriesServiceException(CountriesServiceException.COUNTRY_NOT_FOUND);
     }
@@ -55,7 +52,7 @@ public class CountriesService {
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void delete(int id) throws CountriesServiceException {
+  public void deleteCountry(int id) throws CountriesServiceException {
     try {
       countriesRepo.deleteById(id);
     } catch (DataAccessException ex) {

@@ -16,10 +16,6 @@ public class UserUpdateDto {
 
     private String password;
 
-    private Role role;
-
-    private Boolean isEnabled;
-
     private String firstName;
 
     private String lastName;

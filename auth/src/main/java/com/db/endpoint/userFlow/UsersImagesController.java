@@ -1,4 +1,4 @@
-package com.db.endpoint;
+package com.db.endpoint.userFlow;
 
 import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/users/images")
+@RequestMapping("/user/image")
 @RequiredArgsConstructor
 @Validated
 @PreAuthorize("hasRole('ROLE_USER')")

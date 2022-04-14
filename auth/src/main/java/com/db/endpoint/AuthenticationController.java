@@ -3,9 +3,9 @@ package com.db.endpoint;
 import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
 import com.db.model.User;
-import com.db.model.dto.AuthorizedUserDto;
-import com.db.model.dto.LoginDto;
-import com.db.model.dto.TokenDto;
+import com.db.model.dto.user.AuthorizedUserDto;
+import com.db.model.dto.auth.LoginDto;
+import com.db.model.dto.auth.TokenDto;
 import com.db.model.dto.user.UserDto;
 import com.db.model.dto.user.UserInsertDto;
 import com.db.service.JwtService;
@@ -107,9 +107,9 @@ public class AuthenticationController {
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("")
-  void signup(@RequestBody @Valid UserInsertDto userInsertDto) throws ServiceException {
+  void signup(@RequestBody @Valid UserInsertDto userExtendedInsertDto) throws ServiceException {
     try {
-      usersService.insertUser(modelMapper.map(userInsertDto, User.class));
+      usersService.insertUser(modelMapper.map(userExtendedInsertDto, User.class));
     } catch (UsersServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }

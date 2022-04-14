@@ -1,4 +1,4 @@
-package com.db.endpoint;
+package com.db.endpoint.adminFlow;
 
 import com.db.exception.ServiceException;
 
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/admin/users/images")
+@RequestMapping("/admin/user/image")
 @RequiredArgsConstructor
 @Validated
 @PreAuthorize("hasRole('ROLE_ADMIN')")
