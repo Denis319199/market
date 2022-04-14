@@ -45,7 +45,7 @@ public class UsersImagesAdminController {
   }
 
   @PostMapping
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.CREATED)
   @ApiOperation("")
   void insertImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int userId)
       throws ServiceException, IOException {

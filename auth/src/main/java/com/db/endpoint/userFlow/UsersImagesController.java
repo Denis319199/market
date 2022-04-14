@@ -45,7 +45,7 @@ public class UsersImagesController {
   }
 
   @PostMapping
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.CREATED)
   @ApiOperation("")
   void insertImage(@RequestParam MultipartFile image, Authentication auth)
       throws ServiceException, IOException {

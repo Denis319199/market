@@ -6,6 +6,7 @@ import com.db.model.Country;
 import com.db.service.CountriesService;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class CountriesController {
   @GetMapping(value = "/{countryId}",produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("")
-  public Country getCountry(@PathVariable int countryId) throws ServiceException {
+  public Country getCountry(@PathVariable @Min(1) int countryId) throws ServiceException {
     try {
       return countriesService.findCountryById(countryId);
     } catch (CountriesServiceException ex) {
