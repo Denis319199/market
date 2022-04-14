@@ -4,9 +4,11 @@ import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
 import com.db.model.User;
 import com.db.model.dto.user.UserExtendedDto;
-import com.db.model.dto.user.UserExtendedInsertDto;
-import com.db.model.dto.user.UserExtendedUpdateDto;
+import com.db.model.dto.user.UserInsertDto;
+import com.db.model.dto.user.UserUpdateDto;
 import com.db.service.UsersService;
+import com.db.utility.validation.annotation.GroupValid;
+import com.db.utility.validation.group.AdminGroup;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
@@ -62,9 +64,9 @@ public class UsersAdminController {
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.CREATED)
   @ApiOperation("")
-  UserExtendedDto createUser(@RequestBody @Valid UserExtendedInsertDto userDto) throws ServiceException {
+  UserExtendedDto createUser(@RequestBody @GroupValid(AdminGroup.class) UserInsertDto userDto) throws ServiceException {
     try {
       User user = usersService.insertUser(modelMapper.map(userDto, User.class));
       return modelMapper.map(user, UserExtendedDto.class);
@@ -78,7 +80,7 @@ public class UsersAdminController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("")
-  UserExtendedDto updateUser(@RequestBody @Valid UserExtendedUpdateDto userDto)
+  UserExtendedDto updateUser(@RequestBody @GroupValid(AdminGroup.class) UserUpdateDto userDto)
       throws ServiceException {
     try {
       User user = usersService.updateUser(modelMapper.map(userDto, User.class));

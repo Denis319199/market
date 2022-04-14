@@ -2,6 +2,7 @@ package com.db.endpoint;
 
 import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
+import com.db.model.Role;
 import com.db.model.User;
 import com.db.model.dto.user.AuthorizedUserDto;
 import com.db.model.dto.auth.LoginDto;
@@ -10,6 +11,8 @@ import com.db.model.dto.user.UserDto;
 import com.db.model.dto.user.UserInsertDto;
 import com.db.service.JwtService;
 import com.db.service.UsersService;
+import com.db.utility.validation.annotation.GroupValid;
+import com.db.utility.validation.group.PlainUserGroup;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -107,9 +110,14 @@ public class AuthenticationController {
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("")
-  void signup(@RequestBody @Valid UserInsertDto userExtendedInsertDto) throws ServiceException {
+  void signup(@RequestBody @GroupValid(PlainUserGroup.class) UserInsertDto userExtendedInsertDto) throws ServiceException {
     try {
-      usersService.insertUser(modelMapper.map(userExtendedInsertDto, User.class));
+      User user = modelMapper.map(userExtendedInsertDto, User.class);
+
+      user.setIsEnabled(true);
+      user.setRole(Role.ROLE_USER);
+
+      usersService.insertUser(user);
     } catch (UsersServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }

@@ -1,7 +1,5 @@
 package com.db.model.dto.country;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,13 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CountryDto {
-    @NotNull
-    @Min(1)
-    private Integer id;
+  private Integer id;
 
-    @NotNull
-    private String name;
+  private String name;
 
-    @NotNull
-    private Integer phoneCode;
+  private Integer phoneCode;
 }

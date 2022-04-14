@@ -52,37 +52,4 @@ public class User {
 
   @Column(name = "country_id")
   private Integer countryId;
-
-  public void mergeWith(User other) {
-    if (Objects.isNull(id)) {
-      id = other.id;
-    }
-    if (Objects.isNull(username)) {
-      username = other.username;
-    }
-    if (Objects.isNull(password)) {
-      password = other.password;
-    }
-    if (Objects.isNull(role)) {
-      role = other.role;
-    }
-    if (Objects.isNull(isEnabled)) {
-      isEnabled = other.isEnabled;
-    }
-    if (Objects.isNull(firstName)) {
-      firstName = other.firstName;
-    }
-    if (Objects.isNull(lastName)) {
-      lastName = other.lastName;
-    }
-    if (Objects.isNull(patronymic)) {
-      patronymic = other.patronymic;
-    }
-    if (Objects.isNull(phoneNumber)) {
-      phoneNumber = other.phoneNumber;
-    }
-    if (Objects.isNull(countryId)) {
-      countryId = other.countryId;
-    }
-  }
 }

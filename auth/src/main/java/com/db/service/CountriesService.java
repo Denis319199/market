@@ -3,7 +3,9 @@ package com.db.service;
 import com.db.exception.CountriesServiceException;
 import com.db.model.Country;
 import com.db.repo.CountriesRepo;
+import com.db.utility.Utilities;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,19 @@ public class CountriesService {
     return countriesRepo.findAll();
   }
 
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public Country insertCountry(Country country) throws CountriesServiceException {
-    if (countriesRepo.existsById(country.getId())) {
-      throw new CountriesServiceException(CountriesServiceException.COUNTRY_ALREADY_EXISTS);
+  @Transactional(readOnly = true)
+  public Country findCountryById(int id) throws CountriesServiceException {
+    Optional<Country> country = countriesRepo.findById(id);
+
+    if (country.isEmpty()) {
+      throw new CountriesServiceException(CountriesServiceException.COUNTRY_NOT_FOUND);
     }
 
+    return country.get();
+  }
+
+  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+  public Country insertCountry(Country country) throws CountriesServiceException {
     try {
       return countriesRepo.save(country);
     } catch (DataAccessException ex) {
@@ -40,9 +49,8 @@ public class CountriesService {
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Country updateCountry(Country country) throws CountriesServiceException {
-    if (countriesRepo.existsById(country.getId())) {
-      throw new CountriesServiceException(CountriesServiceException.COUNTRY_NOT_FOUND);
-    }
+    Country old = findCountryById(country.getId());
+    Utilities.merge(country, old);
 
     try {
       return countriesRepo.save(country);

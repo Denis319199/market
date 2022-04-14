@@ -5,6 +5,7 @@ import com.db.model.User;
 import com.db.model.UsersImage;
 import com.db.repo.UsersImagesRepo;
 import com.db.repo.UsersRepo;
+import com.db.utility.Utilities;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -62,10 +63,6 @@ public class UsersService {
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public User insertUser(User user) throws UsersServiceException {
-    if (usersRepo.existsByUsername(user.getUsername())) {
-      throw new UsersServiceException(UsersServiceException.USER_ALREADY_EXISTS);
-    }
-
     user.setPassword(passwordEncoder.encode(user.getPassword()));
 
     try {
@@ -77,17 +74,13 @@ public class UsersService {
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public User updateUser(User user) throws UsersServiceException {
+    String password = user.getPassword();
+    if (password != null) {
+      user.setPassword(passwordEncoder.encode(password));
+    }
+
     User old = findUserById(user.getId());
-    if (Objects.isNull(old)) {
-      throw new UsersServiceException(UsersServiceException.USER_NOT_FOUND);
-    }
-
-    String newPassword = user.getPassword();
-    if (Objects.nonNull(newPassword)) {
-      user.setPassword(passwordEncoder.encode(newPassword));
-    }
-
-    user.mergeWith(old);
+    Utilities.merge(user, old);
 
     try {
       return usersRepo.save(user);

@@ -1,8 +1,14 @@
 package com.db.model.dto.user;
 
 import com.db.model.Role;
+import com.db.utility.validation.ConstraintMessages;
+import com.db.utility.validation.group.AdminGroup;
+import com.db.utility.validation.group.PlainUserGroup;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,21 +17,36 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserUpdateDto {
+  @NotNull(groups = AdminGroup.class, message = ConstraintMessages.NOT_NULL)
+  @Null(groups = PlainUserGroup.class, message = ConstraintMessages.NULL)
+  @Min(value = 1, message = ConstraintMessages.MIN)
+  private Integer id;
 
-    private String username;
+  @Size(min = 5, max = 64, message = ConstraintMessages.SIZE)
+  private String username;
 
-    private String password;
+  @Size(min = 5, max = 64, message = ConstraintMessages.SIZE)
+  private String password;
 
-    private String firstName;
+  @Null(groups = PlainUserGroup.class, message = ConstraintMessages.NULL)
+  private Role role;
 
-    private String lastName;
+  @Null(groups = PlainUserGroup.class, message = ConstraintMessages.NULL)
+  private Boolean isEnabled;
 
-    private String patronymic;
+  @Size(min = 1, max = 64, message = ConstraintMessages.SIZE)
+  private String firstName;
 
-    @Min(value = 1_000_000_000L, message = "must be 10 digits, starting from 1000000000")
-    @Max(value = 9_999_999_999L, message = "must be 10 digits, starting from 1000000000")
-    private Long phoneNumber;
+  @Size(min = 1, max = 64, message = ConstraintMessages.SIZE)
+  private String lastName;
 
-    @Min(1)
-    private Integer countryId;
+  @Size(min = 1, max = 64, message = ConstraintMessages.SIZE)
+  private String patronymic;
+
+  @Min(value = 1_000_000_000L, message = ConstraintMessages.MIN)
+  @Max(value = 9_999_999_999L, message = ConstraintMessages.MAX)
+  private Long phoneNumber;
+
+  @Min(value = 1, message = ConstraintMessages.MIN)
+  private Integer countryId;
 }

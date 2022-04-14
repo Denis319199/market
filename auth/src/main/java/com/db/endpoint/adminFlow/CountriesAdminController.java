@@ -4,6 +4,7 @@ import com.db.exception.CountriesServiceException;
 import com.db.exception.ServiceException;
 import com.db.model.Country;
 import com.db.model.dto.country.CountryDto;
+import com.db.model.dto.country.CountryInsertDto;
 import com.db.model.dto.country.CountryUpdateDto;
 import com.db.service.CountriesService;
 import io.swagger.annotations.Api;
@@ -51,7 +52,7 @@ public class CountriesAdminController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.CREATED)
   @ApiOperation("")
-  Country createCountry(@RequestBody @Valid CountryDto countryDto) throws ServiceException {
+  Country createCountry(@RequestBody @Valid CountryInsertDto countryDto) throws ServiceException {
     try {
       return countriesService.insertCountry(modelMapper.map(countryDto, Country.class));
     } catch (CountriesServiceException ex) {

@@ -6,6 +6,8 @@ import com.db.model.User;
 import com.db.model.dto.user.UserExtendedDto;
 import com.db.model.dto.user.UserUpdateDto;
 import com.db.service.UsersService;
+import com.db.utility.validation.annotation.GroupValid;
+import com.db.utility.validation.group.PlainUserGroup;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
@@ -50,7 +52,7 @@ public class UsersController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @ApiOperation("")
-  UserExtendedDto updateUser(@RequestBody @Valid UserUpdateDto userDto, Authentication auth)
+  UserExtendedDto updateUser(@RequestBody @GroupValid(PlainUserGroup.class) UserUpdateDto userDto, Authentication auth)
       throws ServiceException {
     User user = modelMapper.map(userDto, User.class);
     user.setId((Integer) auth.getPrincipal());

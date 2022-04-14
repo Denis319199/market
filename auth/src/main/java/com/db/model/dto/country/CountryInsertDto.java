@@ -10,13 +10,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CountryUpdateDto {
+public class CountryInsertDto {
     @NotNull
-    @Min(1)
-    private Integer id;
-
     @Size(min = 1, max = 128)
     private String name;
 
+    @NotNull
     private Integer phoneCode;
 }
