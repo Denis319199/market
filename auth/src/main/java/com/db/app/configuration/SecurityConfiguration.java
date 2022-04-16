@@ -5,6 +5,7 @@ import com.db.app.configuration.properties.CorsProperties;
 import com.db.app.configuration.properties.UnsecuredEndpointsProperties;
 import com.db.model.Role;
 import com.db.service.JwtService;
+import com.db.service.UsersService;
 import java.util.Arrays;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -41,11 +42,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   private final CorsProperties corsProperties;
 
   private UserDetailsService userDetailsService;
+  private  UsersService usersService;
 
   @Autowired
   @Lazy
   void setUserDetailsService(UserDetailsService userDetailsService) {
     this.userDetailsService = userDetailsService;
+  }
+
+  @Autowired
+  @Lazy
+  void setUsersService(UsersService usersService) {
+    this.usersService = usersService;
   }
 
   @Override
@@ -76,7 +84,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Bean
   JwtFilter jwtFilter() {
-    return new JwtFilter(jwtService, userDetailsService);
+    return new JwtFilter(jwtService, usersService, unsecuredEndpointsProperties);
   }
 
   @Bean

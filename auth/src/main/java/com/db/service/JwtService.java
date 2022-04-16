@@ -3,6 +3,8 @@ package com.db.service;
 import com.db.app.configuration.properties.JwtClaimsProperties;
 import com.db.app.configuration.properties.JwtProperties;
 import com.db.app.configuration.properties.JwtServiceRequestProperties;
+import com.db.exception.JwtServiceException;
+import com.db.exception.UsersServiceException;
 import com.db.model.RefreshToken;
 import com.db.model.Role;
 import com.db.model.User;
@@ -18,6 +20,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -33,7 +36,7 @@ public class JwtService {
   private final RefreshTokensRepo refreshTokensRepo;
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public String createRefreshToken(User user) {
+  public String createRefreshToken(User user) throws JwtServiceException {
     Date now = new Date();
     Date expiration = new Date(now.getTime() + jwtProperties.getRefreshExpirationTime() * 1000);
 
@@ -52,7 +55,7 @@ public class JwtService {
 
     if (refreshTokensRepo.countUsersTokens(user.getId())
         >= jwtProperties.getMaxRefreshTokenNumber()) {
-      return null;
+      throw new JwtServiceException(JwtServiceException.REFRESH_TOKEN_NUMBER_EXCEEDED);
     }
 
     refreshTokensRepo.save(
@@ -62,6 +65,7 @@ public class JwtService {
             .token(token)
             .expiresOn(expiration.toInstant())
             .build());
+
     return token;
   }
 
@@ -80,20 +84,21 @@ public class JwtService {
         .compact();
   }
 
-  public Claims validateAccessTokenAndGetClaims(String token) {
+  public Claims validateAccessTokenAndGetClaims(String token) throws JwtServiceException {
     try {
       Jws<Claims> claimsJws =
           Jwts.parserBuilder().setSigningKey(jwtProperties.getKey()).build().parseClaimsJws(token);
       Claims claims = claimsJws.getBody();
 
-      if (jwtProperties
+      if (!jwtProperties
           .getAccessTokenName()
           .equals(claims.get(jwtClaimsProperties.getTokenType()))) {
-        return claims;
+        throw new JwtServiceException(JwtServiceException.INVALID_ACCESS_TOKEN);
       }
-      return null;
+
+      return claims;
     } catch (JwtException ex) {
-      return null;
+      throw new JwtServiceException(JwtServiceException.INVALID_ACCESS_TOKEN);
     }
   }
 
@@ -103,7 +108,7 @@ public class JwtService {
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public Claims validateRefreshTokenAndGetClaims(String token) {
+  public Claims validateRefreshTokenAndGetClaims(String token) throws JwtServiceException {
     try {
       Jws<Claims> claimsJws =
           Jwts.parserBuilder().setSigningKey(jwtProperties.getKey()).build().parseClaimsJws(token);
@@ -112,22 +117,22 @@ public class JwtService {
       if (!jwtProperties
           .getRefreshTokenName()
           .equals(claims.get(jwtClaimsProperties.getTokenType()))) {
-        return null;
+        throw new JwtServiceException(JwtServiceException.INVALID_REFRESH_TOKEN);
       }
 
-      Optional<RefreshToken> refreshTokenQueryResult = refreshTokensRepo.findById(claims.getId());
-      if (refreshTokenQueryResult.isEmpty()) {
-        return null;
+      RefreshToken refreshTokenQueryResult = refreshTokensRepo.findById(claims.getId()).orElse(null);
+      if (refreshTokenQueryResult == null) {
+        throw new JwtServiceException(JwtServiceException.INVALID_REFRESH_TOKEN);
       }
 
-      if (refreshTokenQueryResult.get().getUserid() != getUserId(claims)) {
-        return null;
+      if (refreshTokenQueryResult.getUserid() != getUserId(claims)) {
+        throw new JwtServiceException(JwtServiceException.INVALID_REFRESH_TOKEN);
       }
 
-      refreshTokensRepo.deleteById(refreshTokenQueryResult.get().getId());
+      refreshTokensRepo.deleteById(refreshTokenQueryResult.getId());
       return claims;
-    } catch (Exception ex) {
-      return null;
+    }  catch (JwtException | DataAccessException ex) {
+      throw new JwtServiceException(JwtServiceException.INVALID_REFRESH_TOKEN);
     }
   }
 
@@ -139,13 +144,20 @@ public class JwtService {
     return jwtProperties.getTokenType();
   }
 
-  public String getAccessTokenFromRequest(HttpServletRequest request) {
-    String headerValue = request.getHeader(jwtProperties.getHeader());
-    if (Objects.isNull(headerValue)) {
-      return null;
+  public String getAccessTokenFromRequest(final HttpServletRequest request) throws JwtServiceException {
+    final String tokenWithType = request.getHeader(jwtProperties.getHeader());
+
+    if (tokenWithType == null) {
+      throw new JwtServiceException(JwtServiceException.ACCESS_TOKEN_NOT_FOUND);
     }
 
-    return headerValue.replaceFirst(jwtProperties.getTokenType() + " ", "");
+    final String tokenType = jwtProperties.getTokenType();
+
+    if (!tokenWithType.startsWith(tokenType)) {
+      throw new JwtServiceException(JwtServiceException.WRONG_ACCESS_TOKEN_TYPE);
+    }
+
+    return tokenWithType.replaceFirst(tokenType + " ", "");
   }
 
   public String getRole(Claims claims) {

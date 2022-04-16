@@ -1,5 +1,6 @@
 package com.db.endpoint;
 
+import com.db.exception.JwtServiceException;
 import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
 import com.db.model.Role;
@@ -15,13 +16,13 @@ import com.db.utility.validation.annotation.GroupValid;
 import com.db.utility.validation.group.PlainUserGroup;
 import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.Objects;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -63,9 +64,10 @@ public class AuthenticationController {
               .tokenType(jwtService.getTokenType())
               .build();
       return new AuthorizedUserDto(userDto, tokenDto);
-    } catch (AuthenticationException | UsersServiceException ex) {
-      throw new ServiceException(
-          ServiceException.BAD_AUTHENTICATION + ": " + ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    } catch (DisabledException ex) {
+      throw new ServiceException(ServiceException.USER_IS_DISABLED, HttpStatus.FORBIDDEN);
+    } catch (AuthenticationException | UsersServiceException | JwtServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -73,42 +75,41 @@ public class AuthenticationController {
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "")
   TokenDto refreshToken(@RequestParam String token) throws ServiceException {
-    Claims claims = jwtService.validateRefreshTokenAndGetClaims(token);
-
-    if (Objects.isNull(claims)) {
-      throw new ServiceException(ServiceException.INVALID_REFRESH_TOKEN, HttpStatus.BAD_REQUEST);
-    }
-
     try {
-      User user = usersService.findUserById(jwtService.getUserId(claims));
-      if (user.getIsEnabled()) {
-        return TokenDto.builder()
-            .accessToken(jwtService.createAccessToken(user))
-            .refreshToken(jwtService.createRefreshToken(user))
-            .tokenType(jwtService.getTokenType())
-            .build();
-      }
-    } catch (UsersServiceException ex) {
-      throw new ServiceException(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+      Claims claims = jwtService.validateRefreshTokenAndGetClaims(token);
 
-    throw new ServiceException(ServiceException.USER_IS_DISABLED, HttpStatus.FORBIDDEN);
+      User user = usersService.findUserById(jwtService.getUserId(claims));
+
+      if (!user.getIsEnabled()) {
+        throw new ServiceException(ServiceException.USER_IS_DISABLED, HttpStatus.FORBIDDEN);
+      }
+
+      return TokenDto.builder()
+          .accessToken(jwtService.createAccessToken(user))
+          .refreshToken(jwtService.createRefreshToken(user))
+          .tokenType(jwtService.getTokenType())
+          .build();
+    } catch (JwtServiceException | UsersServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
   }
 
   @PostMapping("/logout")
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "")
   void logout(@RequestParam String token) throws ServiceException {
-    Claims claims = jwtService.validateRefreshTokenAndGetClaims(token);
-    if (Objects.isNull(claims)) {
-      throw new ServiceException(ServiceException.INVALID_REFRESH_TOKEN, HttpStatus.BAD_REQUEST);
+    try {
+      jwtService.validateRefreshTokenAndGetClaims(token);
+    } catch (JwtServiceException ex) {
+      throw new ServiceException(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
   }
 
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "")
-  void signup(@RequestBody @GroupValid(PlainUserGroup.class) UserInsertDto userExtendedInsertDto) throws ServiceException {
+  void signup(@RequestBody @GroupValid(PlainUserGroup.class) UserInsertDto userExtendedInsertDto)
+      throws ServiceException {
     try {
       User user = modelMapper.map(userExtendedInsertDto, User.class);
 
