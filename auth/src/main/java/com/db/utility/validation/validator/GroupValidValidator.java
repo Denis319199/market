@@ -22,6 +22,9 @@ public class GroupValidValidator implements ConstraintValidator<GroupValid, Obje
     if (!validator.validate(value, groups).isEmpty()) {
       return false;
     }
+    if (!validator.validate(value, Default.class).isEmpty()) {
+      return false;
+    }
     return validateFields(value);
   }
 
