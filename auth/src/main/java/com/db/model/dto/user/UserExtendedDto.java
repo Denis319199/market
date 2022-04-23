@@ -25,4 +25,6 @@ public class UserExtendedDto {
   private Long phoneNumber;
 
   private Integer countryId;
+
+  private Boolean isImagePresented;
 }

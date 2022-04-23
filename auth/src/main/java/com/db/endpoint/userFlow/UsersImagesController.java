@@ -10,6 +10,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -42,25 +44,13 @@ public class UsersImagesController {
     }
   }
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "")
-  void insertImage(@RequestParam MultipartFile image, @Parameter(hidden = true) Authentication auth)
-      throws ServiceException, IOException {
-    try {
-      usersService.insertImage(new UsersImage((Integer) auth.getPrincipal(), image.getBytes()));
-    } catch (UsersServiceException ex) {
-      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @PatchMapping
+  @PutMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation(summary = "")
-  void updateImage(@RequestParam MultipartFile image, @Parameter(hidden = true) Authentication auth)
+  void putImage(@RequestParam MultipartFile image, @Parameter(hidden = true) Authentication auth)
       throws ServiceException, IOException {
     try {
-      usersService.updateImage(new UsersImage((Integer) auth.getPrincipal(), image.getBytes()));
+      usersService.putImage(new UsersImage((Integer) auth.getPrincipal(), image.getBytes()));
     } catch (UsersServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }

@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Entity
 @Table(name = "users")
@@ -52,4 +54,7 @@ public class User {
 
   @Column(name = "country_id")
   private Integer countryId;
+
+  @Column(name = "is_image_presented")
+  private Boolean isImagePresented;
 }

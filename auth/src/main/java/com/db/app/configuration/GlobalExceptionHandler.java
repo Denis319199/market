@@ -10,9 +10,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,20 +35,26 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(ex.getHttpStatus().value()).body(response);
   }
 
-  @ExceptionHandler(HttpMessageConversionException.class)
+  @ExceptionHandler({
+          HttpMessageConversionException.class,
+          MissingServletRequestParameterException.class,
+          HttpRequestMethodNotSupportedException.class
+  })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  Map<String, String> handleServiceException(HttpMessageConversionException ex) {
-    Map<String, String> response = new HashMap<>();
-    response.put(errorField, ex.getMessage());
-    return response;
+  Map<String, String> handleHttpMessageConversionException(Exception ex) {
+    return prepareResponse(ex);
+  }
+
+  @ExceptionHandler({AccessDeniedException.class})
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  Map<String, String> handleAccessDeniedException(Exception ex) {
+    return prepareResponse(ex);
   }
 
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  Map<String, String> handle(Exception ex) {
-    Map<String, String> response = new HashMap<>();
-    response.put(errorField, ex.getMessage());
-    return response;
+  Map<String, String> handleException(Exception ex) {
+    return prepareResponse(ex);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -97,6 +106,12 @@ public class GlobalExceptionHandler {
 
     Map<String, String> response = new HashMap<>();
     response.put(errorField, message.toString());
+    return response;
+  }
+
+  private Map<String, String> prepareResponse(Exception ex) {
+    Map<String, String> response = new HashMap<>();
+    response.put(errorField, ex.getMessage());
     return response;
   }
 }

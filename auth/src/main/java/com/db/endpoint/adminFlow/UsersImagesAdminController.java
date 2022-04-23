@@ -15,8 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -33,7 +32,7 @@ public class UsersImagesAdminController {
 
   @GetMapping(produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
+  @Operation
   byte[] getImage(@Min(1) int id) throws ServiceException {
     try {
       return usersService.getUsersImage(id);
@@ -42,25 +41,13 @@ public class UsersImagesAdminController {
     }
   }
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "")
-  void insertImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int userId)
-      throws ServiceException, IOException {
-    try {
-      usersService.insertImage(new UsersImage(userId, image.getBytes()));
-    } catch (UsersServiceException ex) {
-      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @PatchMapping
+  @PutMapping
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
-  void updateImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int userId)
+  @Operation
+  void putImage(@RequestParam MultipartFile image, @RequestParam @Min(1) int userId)
       throws ServiceException, IOException {
     try {
-      usersService.updateImage(new UsersImage(userId, image.getBytes()));
+      usersService.putImage(new UsersImage(userId, image.getBytes()));
     } catch (UsersServiceException ex) {
       throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
@@ -68,7 +55,7 @@ public class UsersImagesAdminController {
 
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
+  @Operation
   void deleteImage(@RequestParam @Min(1) int userId) throws ServiceException {
     try {
       usersService.deleteImage(userId);

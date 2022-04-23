@@ -110,6 +110,22 @@ public class UsersService {
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+  public void putImage(UsersImage usersImage) throws UsersServiceException {
+    User user = findUserById(usersImage.getUserId());
+
+    if (!user.getIsImagePresented()) {
+      user.setIsImagePresented(true);
+      usersRepo.save(user);
+    }
+
+    try {
+      usersImagesRepo.save(usersImage);
+    } catch (DataAccessException ex) {
+      throw new UsersServiceException(ex.getMessage());
+    }
+  }
+/*
+  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public void insertImage(UsersImage usersImage) throws UsersServiceException {
     if (usersImagesRepo.existsById(usersImage.getUserId())) {
       throw new UsersServiceException(UsersServiceException.IMAGE_ALREADY_EXISTS);
@@ -133,7 +149,7 @@ public class UsersService {
     } catch (DataAccessException ex) {
       throw new UsersServiceException(ex.getMessage());
     }
-  }
+  }*/
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public void deleteImage(int userId) throws UsersServiceException {

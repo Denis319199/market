@@ -115,6 +115,7 @@ public class AuthenticationController {
 
       user.setIsEnabled(true);
       user.setRole(Role.ROLE_USER);
+      user.setIsImagePresented(false);
 
       usersService.insertUser(user);
     } catch (UsersServiceException ex) {

@@ -4,7 +4,6 @@ import com.db.app.configuration.properties.UnsecuredEndpointsProperties;
 import com.db.exception.JwtServiceException;
 import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
-import com.db.model.Role;
 import com.db.model.User;
 import com.db.service.JwtService;
 import com.db.service.UsersService;
@@ -12,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,8 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -63,13 +59,15 @@ public class JwtFilter extends OncePerRequestFilter {
           rejectRequest(response, HttpStatus.FORBIDDEN, ServiceException.USER_IS_DISABLED);
           return;
         }
+
         SecurityContextHolder.getContext()
             .setAuthentication(
                 new UsernamePasswordAuthenticationToken(
                     userId, token, List.of(new SimpleGrantedAuthority(user.getRole().name()))));
+
       }
     } catch (JwtServiceException | UsersServiceException ex) {
-      rejectRequest(response, HttpStatus.UNAUTHORIZED, ServiceException.USER_IS_DISABLED);
+      rejectRequest(response, HttpStatus.UNAUTHORIZED, ex.getMessage());
       return;
     }
 
@@ -86,6 +84,16 @@ public class JwtFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     for (String unsecuredUri : unsecuredEndpointsProperties.getEndpoints()) {
+      if (antPathMatcher.match(unsecuredUri, request.getRequestURI())) {
+        return true;
+      }
+    }
+    for (String unsecuredUri : unsecuredEndpointsProperties.getSwaggerPaths()) {
+      if (antPathMatcher.match(unsecuredUri, request.getRequestURI())) {
+        return true;
+      }
+    }
+    for (String unsecuredUri : unsecuredEndpointsProperties.getGetMethodEndpoints()) {
       if (antPathMatcher.match(unsecuredUri, request.getRequestURI())) {
         return true;
       }
