@@ -87,19 +87,6 @@ public class SqlQueryExecutor {
     }
   }
 
-  private String translateFromCamelToSnakeCase(String name) {
-    StringBuilder builder = new StringBuilder(name);
-    for (int i = 0; i < builder.length(); ++i) {
-      char symbol = builder.charAt(i);
-      if (Character.isUpperCase(symbol)) {
-        builder.setCharAt(i, Character.toLowerCase(symbol));
-        builder.insert(i, '_');
-      }
-    }
-
-    return builder.toString();
-  }
-
   private <T> T convertTo(ResultSet resultSet, Class<T> clazz) {
     try {
       T instance = clazz.getConstructor().newInstance();
@@ -113,7 +100,9 @@ public class SqlQueryExecutor {
         Enumerated enumerated = field.getAnnotation(Enumerated.class);
 
         String columnName =
-            Objects.isNull(column) ? translateFromCamelToSnakeCase(field.getName()) : column.name();
+            Objects.isNull(column)
+                ? Utilities.translateFromCamelToSnakeCase(field.getName())
+                : column.name();
 
         StringBuilder setterName = new StringBuilder("set");
         setterName.append(field.getName());

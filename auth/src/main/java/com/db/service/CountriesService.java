@@ -3,7 +3,7 @@ package com.db.service;
 import com.db.exception.CountriesServiceException;
 import com.db.model.Country;
 import com.db.repo.CountriesRepo;
-import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CountriesService {
   private final CountriesRepo countriesRepo;
+  private final ModelMapper modelMapper;
 
   @Transactional(readOnly = true)
   public List<Country> getCountries() {
@@ -50,7 +51,7 @@ public class CountriesService {
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Country updateCountry(Country country) throws CountriesServiceException {
     Country old = findCountryById(country.getId());
-    Utilities.merge(country, old);
+    modelMapper.merge(country, old);
 
     try {
       return countriesRepo.save(country);

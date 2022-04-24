@@ -77,18 +77,19 @@ public class SqlQueryBuilder {
     return this;
   }
 
-  public SqlQueryBuilder orderBy(boolean asc, String... what) {
+  public SqlQueryBuilder orderBy(String[] what, Boolean[] asc) {
     query.append("\nORDER BY ");
 
-    final int length = what.length - 1;
-    for (int i = 0; i < length; ++i) {
-      query.append(what[i]).append(", ");
+    query.append(what[0]);
+    if (!asc[0]) {
+      query.append(" DESC");
     }
 
-    query.append(what[length]);
-
-    if (!asc) {
-      query.append(" DESC");
+    for (int i = 1; i < asc.length; ++i) {
+      query.append(", ").append(what[i]);
+      if (!asc[i]) {
+        query.append(" DESC");
+      }
     }
 
     return this;

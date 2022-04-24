@@ -12,13 +12,13 @@ import com.db.model.dto.user.UserDto;
 import com.db.model.dto.user.UserInsertDto;
 import com.db.service.JwtService;
 import com.db.service.UsersService;
+import com.db.utility.mapper.ModelMapper;
 import com.db.utility.validation.annotation.GroupValid;
 import com.db.utility.validation.group.PlainUserGroup;
 import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -48,7 +48,7 @@ public class AuthenticationController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
+  @Operation
   AuthorizedUserDto authenticate(@RequestBody @Valid LoginDto loginDto) throws ServiceException {
     try {
       Authentication auth =
@@ -73,7 +73,7 @@ public class AuthenticationController {
 
   @PostMapping(value = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
+  @Operation
   TokenDto refreshToken(@RequestParam String token) throws ServiceException {
     try {
       Claims claims = jwtService.validateRefreshTokenAndGetClaims(token);
@@ -96,7 +96,7 @@ public class AuthenticationController {
 
   @PostMapping("/logout")
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
+  @Operation
   void logout(@RequestParam String token) throws ServiceException {
     try {
       jwtService.validateRefreshTokenAndGetClaims(token);
@@ -107,11 +107,11 @@ public class AuthenticationController {
 
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
-  void signup(@RequestBody @GroupValid(PlainUserGroup.class) UserInsertDto userExtendedInsertDto)
+  @Operation
+  void signup(@RequestBody @GroupValid(PlainUserGroup.class) UserInsertDto userDto)
       throws ServiceException {
     try {
-      User user = modelMapper.map(userExtendedInsertDto, User.class);
+      User user = modelMapper.map(userDto, User.class);
 
       user.setIsEnabled(true);
       user.setRole(Role.ROLE_USER);

@@ -5,9 +5,8 @@ import com.db.model.User;
 import com.db.model.UsersImage;
 import com.db.repo.UsersImagesRepo;
 import com.db.repo.UsersRepo;
-import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +23,7 @@ public class UsersService {
   private final UsersRepo usersRepo;
   private final UsersImagesRepo usersImagesRepo;
   private final PasswordEncoder passwordEncoder;
+  private final ModelMapper modelMapper;
 
   @Transactional(readOnly = true)
   public List<User> getUsers(int page, int size) {
@@ -80,7 +80,7 @@ public class UsersService {
     }
 
     User old = findUserById(user.getId());
-    Utilities.merge(user, old);
+    modelMapper.merge(user, old);
 
     try {
       return usersRepo.save(user);
@@ -124,32 +124,6 @@ public class UsersService {
       throw new UsersServiceException(ex.getMessage());
     }
   }
-/*
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void insertImage(UsersImage usersImage) throws UsersServiceException {
-    if (usersImagesRepo.existsById(usersImage.getUserId())) {
-      throw new UsersServiceException(UsersServiceException.IMAGE_ALREADY_EXISTS);
-    }
-
-    try {
-      usersImagesRepo.save(usersImage);
-    } catch (DataAccessException ex) {
-      throw new UsersServiceException(ex.getMessage());
-    }
-  }
-
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void updateImage(UsersImage usersImage) throws UsersServiceException {
-    if (!usersImagesRepo.existsById(usersImage.getUserId())) {
-      throw new UsersServiceException(UsersServiceException.IMAGE_NOT_FOUND);
-    }
-
-    try {
-      usersImagesRepo.save(usersImage);
-    } catch (DataAccessException ex) {
-      throw new UsersServiceException(ex.getMessage());
-    }
-  }*/
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public void deleteImage(int userId) throws UsersServiceException {
