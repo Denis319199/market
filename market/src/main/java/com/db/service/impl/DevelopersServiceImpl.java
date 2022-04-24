@@ -6,6 +6,7 @@ import com.db.model.Developer;
 import com.db.repo.DevelopersRepo;
 import com.db.service.DevelopersService;
 import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DevelopersServiceImpl implements DevelopersService {
   protected final DevelopersRepo developersRepo;
   protected final AuthClient authClient;
+  protected final ModelMapper modelMapper;
 
   @Override
   @Transactional(readOnly = true)
@@ -65,7 +67,7 @@ public class DevelopersServiceImpl implements DevelopersService {
       throw new DevelopersServiceException(DevelopersServiceException.BAD_COUNTRY_ID);
     }
 
-    Utilities.merge(developer, old);
+    modelMapper.merge(developer, old);
 
     try {
       return developersRepo.save(developer);

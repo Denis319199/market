@@ -7,6 +7,7 @@ import com.db.model.UsersItemId;
 import com.db.repo.UsersItemsRepo;
 import com.db.service.impl.UsersItemsServiceImpl;
 import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Profile("auth-service-disabled")
 public class UsersItemsServiceDev extends UsersItemsServiceImpl {
-  public UsersItemsServiceDev(UsersItemsRepo usersItemsRepo, AuthClient authClient) {
-    super(usersItemsRepo, authClient);
+  public UsersItemsServiceDev(UsersItemsRepo usersItemsRepo, AuthClient authClient, ModelMapper modelMapper) {
+    super(usersItemsRepo, authClient, modelMapper);
   }
 
   @Override
@@ -40,7 +41,7 @@ public class UsersItemsServiceDev extends UsersItemsServiceImpl {
     UsersItem old =
         findUsersItemByUsersItemId(new UsersItemId(usersItem.getUserId(), usersItem.getItemId()));
 
-    Utilities.merge(usersItem, old);
+    modelMapper.merge(usersItem, old);
 
     try {
       return usersItemsRepo.save(usersItem);

@@ -7,6 +7,7 @@ import com.db.repo.GamesImagesRepo;
 import com.db.repo.GamesRepo;
 import com.db.service.GamesService;
 import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class GamesServiceImpl implements GamesService {
   private final GamesRepo gamesRepo;
   private final GamesImagesRepo gamesImagesRepo;
+  private final ModelMapper modelMapper;
 
   @Transactional(readOnly = true)
   public Game findGameById(int id) throws GamesServiceException {
@@ -51,7 +53,7 @@ public class GamesServiceImpl implements GamesService {
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Game updateGame(Game game) throws GamesServiceException {
     Game old = findGameById(game.getId());
-    Utilities.merge(game, old);
+    modelMapper.merge(game, old);
 
     try {
       return gamesRepo.save(game);

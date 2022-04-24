@@ -1,4 +1,4 @@
-package com.db.utility;
+package com.db.utility.sql;
 
 import lombok.NoArgsConstructor;
 

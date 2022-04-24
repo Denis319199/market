@@ -1,5 +1,6 @@
-package com.db.utility;
+package com.db.utility.sql;
 
+import com.db.utility.Utilities;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.ResultSet;

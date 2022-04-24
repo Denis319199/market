@@ -7,7 +7,7 @@ import com.db.model.UsersItem;
 import com.db.model.UsersItemId;
 import com.db.repo.UsersItemsRepo;
 import com.db.service.UsersItemsService;
-import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsersItemsServiceImpl implements UsersItemsService {
   protected final UsersItemsRepo usersItemsRepo;
   protected final AuthClient authClient;
+  protected final ModelMapper modelMapper;
 
   @Override
   @Transactional(readOnly = true)
@@ -75,7 +76,7 @@ public class UsersItemsServiceImpl implements UsersItemsService {
       }
     }
 
-    Utilities.merge(usersItem, old);
+    modelMapper.merge(usersItem, old);
 
     try {
       return usersItemsRepo.save(usersItem);

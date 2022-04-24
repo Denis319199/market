@@ -5,16 +5,14 @@ import com.db.exception.PurchasesServiceException;
 import com.db.exception.SellingItemsServiceException;
 import com.db.exception.ServiceException;
 import com.db.exception.UsersItemsServiceException;
-import com.db.model.Developer;
 import com.db.model.Purchase;
 import com.db.model.SellingItem;
 import com.db.repo.SellingItemsRepo;
 import com.db.service.PurchasesService;
 import com.db.service.SellingItemsService;
 import com.db.service.UsersItemsService;
-import com.db.utility.SqlQueryBuilder;
-import com.db.utility.SqlQueryExecutor;
-import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
+import com.db.utility.sql.SqlQueryExecutor;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +35,7 @@ public class SellingItemsServiceImpl implements SellingItemsService {
   protected final UsersItemsService usersItemsService;
   protected final PurchasesService purchasesService;
   protected final SqlQueryExecutor sqlQueryExecutor;
+  protected final ModelMapper modelMapper;
 
   @Override
   @Transactional(readOnly = true)
@@ -54,7 +53,7 @@ public class SellingItemsServiceImpl implements SellingItemsService {
       Integer game,
       String orderBy,
       boolean ascOrder) {
-    SqlQueryBuilder queryBuilder =
+/*    SqlQueryBuilder queryBuilder =
         SqlQueryBuilder.builder().select("s.*").from("selling_items").as("s");
 
     if (Objects.nonNull(game)) {
@@ -73,9 +72,11 @@ public class SellingItemsServiceImpl implements SellingItemsService {
       queryBuilder.and("i.game_id = %o", game);
     }
 
-    String query = queryBuilder.orderBy(ascOrder, orderBy).limit(size).offset(page * size).build();
+    String query = queryBuilder.orderBy(ascOrder, "price").limit(size).offset(page * size).build();
 
-    return sqlQueryExecutor.execute(query, SellingItem.class);
+    return sqlQueryExecutor.execute(query, SellingItem.class);*/
+
+    return null;
   }
 
   @Override
@@ -117,7 +118,7 @@ public class SellingItemsServiceImpl implements SellingItemsService {
       }
     }
 
-    Utilities.merge(sellingItem, old);
+    modelMapper.merge(sellingItem, old);
 
     try {
       return sellingItemsRepo.save(sellingItem);

@@ -6,6 +6,7 @@ import com.db.model.Developer;
 import com.db.repo.DevelopersRepo;
 import com.db.service.impl.DevelopersServiceImpl;
 import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Profile("auth-service-disabled")
 public class DevelopersServiceDev extends DevelopersServiceImpl {
-  public DevelopersServiceDev(DevelopersRepo developersRepo, AuthClient authClient) {
-    super(developersRepo, authClient);
+  public DevelopersServiceDev(DevelopersRepo developersRepo, AuthClient authClient, ModelMapper modelMapper) {
+    super(developersRepo, authClient, modelMapper);
   }
 
   @Override
@@ -33,7 +34,7 @@ public class DevelopersServiceDev extends DevelopersServiceImpl {
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Developer updateDeveloper(Developer developer) throws DevelopersServiceException {
     Developer old = findDeveloperById(developer.getId());
-    Utilities.merge(developer, old);
+    modelMapper.merge(developer, old);
 
     try {
       return developersRepo.save(developer);

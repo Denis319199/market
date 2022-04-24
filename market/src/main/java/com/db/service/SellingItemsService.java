@@ -26,7 +26,7 @@ public interface SellingItemsService {
   List<SellingItem> getAllSellingItemsWithFilters(
       int page,
       int size,
-      boolean users,
+      boolean isOwn,
       int userId,
       Integer game,
       String orderBy,

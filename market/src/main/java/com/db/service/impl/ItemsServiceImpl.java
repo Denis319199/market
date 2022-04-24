@@ -7,6 +7,7 @@ import com.db.repo.ItemsImagesRepo;
 import com.db.repo.ItemsRepo;
 import com.db.service.ItemsService;
 import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ItemsServiceImpl implements ItemsService {
   private final ItemsRepo itemsRepo;
   private final ItemsImagesRepo itemsImagesRepo;
+  private final ModelMapper modelMapper;
 
   @Transactional(readOnly = true)
   public Item findItemById(int id) throws ItemsServiceException {
@@ -51,7 +53,7 @@ public class ItemsServiceImpl implements ItemsService {
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Item updateItem(Item item) throws ItemsServiceException {
     Item old = findItemById(item.getId());
-    Utilities.merge(item, old);
+    modelMapper.merge(item, old);
 
     try {
       return itemsRepo.save(item);

@@ -8,27 +8,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Utilities {
-  public static <T> void merge(T target, T data) {
-    Map<String, Method> gettersAndSetters =
-        Arrays.stream(target.getClass().getDeclaredMethods())
-            .filter(method -> method.getName().contains("set") || method.getName().contains("get"))
-            .collect(Collectors.toMap(Method::getName, Function.identity()));
+  public static String translateFromCamelToSnakeCase(String name) {
+    StringBuilder builder = new StringBuilder(name);
+    for (int i = 0; i < builder.length(); ++i) {
+      char symbol = builder.charAt(i);
+      if (Character.isUpperCase(symbol)) {
+        builder.setCharAt(i, Character.toLowerCase(symbol));
+        builder.insert(i, '_');
+      }
+    }
 
-    gettersAndSetters
-        .values()
-        .forEach(
-            method -> {
-              if (method.getName().contains("get")) {
-                try {
-                  if (Objects.isNull(method.invoke(target))) {
-                    gettersAndSetters
-                        .get(method.getName().replace("get", "set"))
-                        .invoke(target, method.invoke(data));
-                  }
-                } catch (Exception ignored) {
-
-                }
-              }
-            });
+    return builder.toString();
   }
 }

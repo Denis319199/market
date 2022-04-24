@@ -6,6 +6,7 @@ import com.db.model.Purchase;
 import com.db.repo.PurchasesRepo;
 import com.db.service.PurchasesService;
 import com.db.utility.Utilities;
+import com.db.utility.mapper.ModelMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PurchasesServiceImpl implements PurchasesService {
   protected final PurchasesRepo purchasesRepo;
   protected final AuthClient authClient;
+  protected final ModelMapper modelMapper;
 
   @Override
   @Transactional(readOnly = true)
@@ -77,7 +79,7 @@ public class PurchasesServiceImpl implements PurchasesService {
       throw new PurchasesServiceException(PurchasesServiceException.BAD_SELLER_OR_CUSTOMER_ID);
     }
 
-    Utilities.merge(purchase, old);
+    modelMapper.merge(purchase, old);
 
     try {
       return purchasesRepo.save(purchase);

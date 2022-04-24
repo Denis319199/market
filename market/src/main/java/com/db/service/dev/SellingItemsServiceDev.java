@@ -7,7 +7,8 @@ import com.db.repo.SellingItemsRepo;
 import com.db.service.PurchasesService;
 import com.db.service.UsersItemsService;
 import com.db.service.impl.SellingItemsServiceImpl;
-import com.db.utility.SqlQueryExecutor;
+import com.db.utility.mapper.ModelMapper;
+import com.db.utility.sql.SqlQueryExecutor;
 import com.db.utility.Utilities;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
@@ -19,11 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile("auth-service-disabled")
 public class SellingItemsServiceDev extends SellingItemsServiceImpl {
   public SellingItemsServiceDev(
-      SellingItemsRepo sellingItemsRepo,
-      AuthClient authClient,
-      UsersItemsService usersItemsService,
-      PurchasesService purchasesService, SqlQueryExecutor sqlQueryExecutor) {
-    super(sellingItemsRepo, authClient, usersItemsService, purchasesService, sqlQueryExecutor);
+          SellingItemsRepo sellingItemsRepo,
+          AuthClient authClient,
+          UsersItemsService usersItemsService,
+          PurchasesService purchasesService, SqlQueryExecutor sqlQueryExecutor, ModelMapper modelMapper) {
+    super(sellingItemsRepo, authClient, usersItemsService, purchasesService, sqlQueryExecutor, modelMapper);
   }
 
   @Override
@@ -42,7 +43,7 @@ public class SellingItemsServiceDev extends SellingItemsServiceImpl {
   public SellingItem updateSellingItem(SellingItem sellingItem)
       throws SellingItemsServiceException {
     SellingItem old = findSellingItemById(sellingItem.getId());
-    Utilities.merge(sellingItem, old);
+    modelMapper.merge(sellingItem, old);
 
     try {
       return sellingItemsRepo.save(sellingItem);
