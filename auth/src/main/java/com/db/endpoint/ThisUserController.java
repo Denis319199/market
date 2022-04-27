@@ -1,4 +1,4 @@
-package com.db.endpoint.userFlow;
+package com.db.endpoint;
 
 import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,23 +24,23 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@PreAuthorize("hasRole('ROLE_USER')")
-@RequestMapping("/user")
+@RequestMapping("/me")
 @RequiredArgsConstructor
 @Validated
-public class UsersController {
+public class ThisUserController {
+
   private final UsersService usersService;
   private final ModelMapper modelMapper;
 
-  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
-  UserExtendedDto getUser(@Parameter(hidden = true) Authentication auth) throws ServiceException {
+  public UserExtendedDto me(@Parameter(hidden = true) Authentication auth) throws ServiceException {
     try {
-      User user = usersService.findUserById((Integer) auth.getPrincipal());
-      return modelMapper.map(user, UserExtendedDto.class);
+      return modelMapper.map(
+          usersService.findUserById((Integer) auth.getPrincipal()), UserExtendedDto.class);
     } catch (UsersServiceException ex) {
-      throw new ServiceException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+      throw new ServiceException(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -49,8 +48,8 @@ public class UsersController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @Operation(summary = "")
-  UserExtendedDto updateUser(
+  @Operation
+  public UserExtendedDto updateUser(
       @RequestBody @GroupValid(PlainUserGroup.class) UserUpdateDto userDto,
       @Parameter(hidden = true) Authentication auth)
       throws ServiceException {
