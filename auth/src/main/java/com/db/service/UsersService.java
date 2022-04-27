@@ -1,5 +1,6 @@
 package com.db.service;
 
+import com.db.exception.ServiceException;
 import com.db.exception.UsersServiceException;
 import com.db.model.User;
 import com.db.model.UsersImage;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -126,8 +128,17 @@ public class UsersService {
   }
 
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void deleteImage(int userId) throws UsersServiceException {
+  public void deleteImage(int userId) throws UsersServiceException, ServiceException {
     try {
+      User user = findUserById(userId);
+
+      if (!user.getIsImagePresented()) {
+        throw new ServiceException(UsersServiceException.IMAGE_NOT_FOUND, HttpStatus.BAD_REQUEST);
+      }
+
+      user.setIsImagePresented(false);
+      usersRepo.save(user);
+
       usersImagesRepo.deleteById(userId);
     } catch (DataAccessException ex) {
       throw new UsersServiceException(ex.getMessage());
