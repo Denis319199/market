@@ -1,4 +1,4 @@
-package com.db.utility.filter;
+package com.db.utility.filter.model;
 
 public enum Operation {
   EQUAL("="),

@@ -1,6 +1,6 @@
 package com.db.utility.filter.annotation;
 
-import com.db.utility.filter.Operation;
+import com.db.utility.filter.model.Operation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
