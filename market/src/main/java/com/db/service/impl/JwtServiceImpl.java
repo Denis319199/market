@@ -48,14 +48,15 @@ public class JwtServiceImpl implements JwtService {
           Jwts.parserBuilder().setSigningKey(jwtProperties.getKey()).build().parseClaimsJws(token);
       Claims claims = claimsJws.getBody();
 
-      if (jwtProperties
+      if (!jwtProperties
           .getAccessTokenName()
           .equals(claims.get(jwtClaimsProperties.getTokenType()))) {
-        return claims;
+        throw new JwtServiceException(JwtServiceException.INVALID_ACCESS_TOKEN);
       }
-      return null;
+
+      return claims;
     } catch (JwtException ex) {
-      throw new JwtServiceException(JwtServiceException.INVALID_TOKEN);
+      throw new JwtServiceException(JwtServiceException.INVALID_ACCESS_TOKEN);
     }
   }
 
@@ -70,15 +71,20 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public String getAccessTokenFromRequest(HttpServletRequest request) throws JwtServiceException {
-    String headerValue = request.getHeader(jwtProperties.getHeader());
+  public String getAccessTokenFromRequest(final HttpServletRequest request)
+      throws JwtServiceException {
+    final String tokenWithType = request.getHeader(jwtProperties.getHeader());
 
-    String prefix = jwtProperties.getTokenType() + " ";
-
-    if (Objects.isNull(headerValue) ||  !headerValue.contains(prefix)) {
-      throw new JwtServiceException(JwtServiceException.TOKEN_NOT_FOUND);
+    if (tokenWithType == null) {
+      throw new JwtServiceException(JwtServiceException.ACCESS_TOKEN_NOT_FOUND);
     }
 
-    return headerValue.substring(prefix.length());
+    final String tokenType = jwtProperties.getTokenType();
+
+    if (!tokenWithType.startsWith(tokenType)) {
+      throw new JwtServiceException(JwtServiceException.WRONG_ACCESS_TOKEN_TYPE);
+    }
+
+    return tokenWithType.replaceFirst(tokenType + " ", "");
   }
 }
