@@ -1,13 +1,13 @@
-package com.db.utility.filter;
+package com.db.utility.sql.filter;
 
 import com.db.exception.ServiceException;
-import com.db.utility.filter.model.FilterCountResult;
-import com.db.utility.filter.model.FilterResult;
+import com.db.utility.sql.filter.model.FilterCountResult;
+import com.db.utility.sql.filter.model.FilterResult;
 import com.db.utility.sql.SqlQueryBuilder;
 import com.db.utility.Utilities;
-import com.db.utility.filter.annotation.FilterInnerJoin;
-import com.db.utility.filter.annotation.FilterModel;
-import com.db.utility.filter.annotation.FilterOperation;
+import com.db.utility.sql.filter.annotation.FilterInnerJoin;
+import com.db.utility.sql.filter.annotation.FilterModel;
+import com.db.utility.sql.filter.annotation.FilterOperation;
 import com.db.utility.sql.SqlQueryExecutor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class Filter {
+public class SqlFilter {
 
   private final SqlQueryExecutor sqlQueryExecutor;
 
@@ -45,7 +45,7 @@ public class Filter {
     private String[] orderBy;
     private Boolean[] ascOrder;
 
-    public InnerFilter(Object filterObj) throws FilterException {
+    public InnerFilter(Object filterObj) throws SqlFilterException {
       this.filterObj = filterObj;
       this.filterClass = filterObj.getClass();
       this.modelClass = filterClass.getAnnotation(FilterModel.class).value();
@@ -53,7 +53,7 @@ public class Filter {
       parseFilter();
     }
 
-    private InnerFilter(Object filterObj, FilterInnerJoin filterInnerJoin) throws FilterException {
+    private InnerFilter(Object filterObj, FilterInnerJoin filterInnerJoin) throws SqlFilterException {
       this.filterObj = filterObj;
       this.filterClass = filterObj.getClass();
       this.modelClass = filterClass.getAnnotation(FilterModel.class).value();
@@ -62,7 +62,7 @@ public class Filter {
       parseInnerJoinFilter();
     }
 
-    public String buildQuery() throws FilterException {
+    public String buildQuery() throws SqlFilterException {
       SqlQueryBuilder sqlQueryBuilder = SqlQueryBuilder.builder().select("*");
 
       buildFromForQuery(sqlQueryBuilder);
@@ -76,7 +76,7 @@ public class Filter {
       return sqlQueryBuilder.build();
     }
 
-    public String buildCountQuery() throws FilterException {
+    public String buildCountQuery() throws SqlFilterException {
       SqlQueryBuilder sqlQueryBuilder = SqlQueryBuilder.builder().select("COUNT(*)");
 
       buildFromForQuery(sqlQueryBuilder);
@@ -86,24 +86,28 @@ public class Filter {
       return sqlQueryBuilder.build();
     }
 
-    private void buildFromForQuery(SqlQueryBuilder sqlQueryBuilder) throws FilterException {
-      sqlQueryBuilder.from("");
-      buildFromForQueryImpl(sqlQueryBuilder);
+    private void buildFromForQuery(SqlQueryBuilder sqlQueryBuilder) throws SqlFilterException {
+      if (innerFilters.isEmpty()) {
+        sqlQueryBuilder.from(tableName);
+      } else {
+        sqlQueryBuilder.from("");
+        buildFromForQueryImpl(sqlQueryBuilder);
+      }
     }
 
-    private void buildFromForQueryImpl(SqlQueryBuilder sqlQueryBuilder) throws FilterException {
+    private void buildFromForQueryImpl(SqlQueryBuilder sqlQueryBuilder) throws SqlFilterException {
       for (InnerFilter innerFilter : innerFilters) {
         FilterInnerJoin filterInnerJoin = innerFilter.innerJoin;
         String[] lhs = filterInnerJoin.lhs();
         String[] rhs = filterInnerJoin.rhs();
 
         if (lhs.length != rhs.length) {
-          throw new FilterException(
-              FilterException.INVALID_CONDITION_FOR_INNER_JOIN,
+          throw new SqlFilterException(
+              SqlFilterException.INVALID_CONDITION_FOR_INNER_JOIN,
               "Inner join's left hand size doesn't have right one or vice versa");
         } else if (lhs.length == 0) {
-          throw new FilterException(
-              FilterException.INVALID_CONDITION_FOR_INNER_JOIN,
+          throw new SqlFilterException(
+              SqlFilterException.INVALID_CONDITION_FOR_INNER_JOIN,
               "There is no criteria to join tables");
         }
 
@@ -136,11 +140,11 @@ public class Filter {
       }
     }
 
-    private void buildOrderByForQuery(SqlQueryBuilder sqlQueryBuilder) throws FilterException {
+    private void buildOrderByForQuery(SqlQueryBuilder sqlQueryBuilder) throws SqlFilterException {
       if (ascOrder != null) {
         if (orderBy != null) {
           if (orderBy.length != ascOrder.length) {
-            throw new FilterException(FilterException.DIFFERENT_SORTING_PARAMETER_LENGTHS);
+            throw new SqlFilterException(SqlFilterException.DIFFERENT_SORTING_PARAMETER_LENGTHS);
           }
 
           sqlQueryBuilder.orderBy(orderBy, ascOrder);
@@ -153,25 +157,25 @@ public class Filter {
                 .filter(field -> field.getAnnotation(Id.class) != null)
                 .map(Field::getName)
                 .findFirst()
-                .orElseThrow(() -> new FilterException(FilterException.NO_ID_FOR_ORDER));
+                .orElseThrow(() -> new SqlFilterException(SqlFilterException.NO_ID_FOR_ORDER));
 
         sqlQueryBuilder.orderBy(new String[] {getFullColumnName(idFieldName)});
       }
     }
 
     private void buildLimitAndOffsetForQuery(SqlQueryBuilder sqlQueryBuilder)
-        throws FilterException {
+        throws SqlFilterException {
       if (size != null && page != null) {
         if (size > 0 && page >= 0) {
           sqlQueryBuilder.limit(size);
           sqlQueryBuilder.offset(size * page);
         } else {
-          throw new FilterException(FilterException.INVALID_PAGE_NUMBER_OR_PAGE_SIZE);
+          throw new SqlFilterException(SqlFilterException.INVALID_PAGE_NUMBER_OR_PAGE_SIZE);
         }
       }
     }
 
-    private void parseInnerJoinFilter() throws FilterException {
+    private void parseInnerJoinFilter() throws SqlFilterException {
       for (Field filterField : filterClass.getDeclaredFields()) {
         FilterOperation filterOperation = filterField.getAnnotation(FilterOperation.class);
         if (filterOperation != null) {
@@ -186,7 +190,7 @@ public class Filter {
       }
     }
 
-    private void parseFilter() throws FilterException {
+    private void parseFilter() throws SqlFilterException {
       for (Field filterField : filterClass.getDeclaredFields()) {
         FilterOperation filterOperation = filterField.getAnnotation(FilterOperation.class);
         if (filterOperation != null) {
@@ -206,7 +210,7 @@ public class Filter {
       }
     }
 
-    private void checkForSpecFields(Field filterField) throws FilterException {
+    private void checkForSpecFields(Field filterField) throws SqlFilterException {
       try {
         switch (filterField.getName()) {
           case "page":
@@ -247,11 +251,11 @@ public class Filter {
             break;
         }
       } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ignore) {
-        throw new FilterException(FilterException.CANNOT_GET_ACCESS_TO_FIELD);
+        throw new SqlFilterException(SqlFilterException.CANNOT_GET_ACCESS_TO_FIELD);
       }
     }
 
-    private Object getFieldValue(String fieldName) throws FilterException {
+    private Object getFieldValue(String fieldName) throws SqlFilterException {
       try {
         StringBuilder getterName = new StringBuilder("get");
         getterName.append(fieldName);
@@ -259,13 +263,13 @@ public class Filter {
 
         return filterClass.getDeclaredMethod(getterName.toString()).invoke(filterObj);
       } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignore) {
-        throw new FilterException(
-            FilterException.CANNOT_GET_ACCESS_TO_FIELD, "Field name: '" + fieldName + '\'');
+        throw new SqlFilterException(
+            SqlFilterException.CANNOT_GET_ACCESS_TO_FIELD, "Field name: '" + fieldName + '\'');
       }
     }
 
     private void addCondition(Field filterField, FilterOperation filterOperation)
-        throws FilterException {
+        throws SqlFilterException {
       String filterFieldName = filterField.getName();
 
       String fullColumnName =
@@ -334,7 +338,7 @@ public class Filter {
       }
     }
 
-    private String getFullColumnName(String fieldName) throws FilterException {
+    private String getFullColumnName(String fieldName) throws SqlFilterException {
       try {
         Field modelField = modelClass.getDeclaredField(fieldName);
 
@@ -346,8 +350,8 @@ public class Filter {
 
         return modelClass.getAnnotation(Table.class).name() + '.' + columnName;
       } catch (NoSuchFieldException ex) {
-        throw new FilterException(
-            FilterException.THERE_IS_NO_SUCH_ATTRIBUTE, "Attribute name: '" + fieldName + '\'');
+        throw new SqlFilterException(
+            SqlFilterException.THERE_IS_NO_SUCH_ATTRIBUTE, "Attribute name: '" + fieldName + '\'');
       }
     }
   }
@@ -372,11 +376,11 @@ public class Filter {
               : totalElementCount / pageSize + 1);
       result.setContent(sqlQueryExecutor.execute(innerFilter.buildQuery(), model));
       return result;
-    } catch (FilterException ex) {
+    } catch (SqlFilterException ex) {
       switch (ex.getMessage()) {
-        case FilterException.THERE_IS_NO_SUCH_ATTRIBUTE:
-        case FilterException.DIFFERENT_SORTING_PARAMETER_LENGTHS:
-        case FilterException.INVALID_PAGE_NUMBER_OR_PAGE_SIZE:
+        case SqlFilterException.THERE_IS_NO_SUCH_ATTRIBUTE:
+        case SqlFilterException.DIFFERENT_SORTING_PARAMETER_LENGTHS:
+        case SqlFilterException.INVALID_PAGE_NUMBER_OR_PAGE_SIZE:
           throw new ServiceException(ex.getFullMessage(), HttpStatus.BAD_REQUEST);
       }
 

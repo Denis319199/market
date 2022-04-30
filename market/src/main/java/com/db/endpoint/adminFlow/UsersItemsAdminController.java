@@ -9,8 +9,8 @@ import com.db.model.dto.usersItem.UsersItemInsertDto;
 import com.db.model.dto.usersItem.UsersItemUpdateDto;
 import com.db.model.filter.UsersItemFilter;
 import com.db.service.UsersItemsService;
-import com.db.utility.filter.Filter;
-import com.db.utility.filter.model.FilterResult;
+import com.db.utility.sql.filter.SqlFilter;
+import com.db.utility.sql.filter.model.FilterResult;
 import com.db.utility.mapper.ModelMapper;
 import com.db.utility.validation.ConstraintMessages;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,14 +38,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsersItemsAdminController {
   private final UsersItemsService usersItemsService;
   private final ModelMapper modelMapper;
-  private final Filter filter;
+  private final SqlFilter sqlFilter;
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
   public FilterResult<UsersItemExtendedDto> getUsersItems(@RequestBody @Valid UsersItemFilter query)
       throws ServiceException {
-    return filter.doFilter(query, UsersItemExtendedDto.class);
+    return sqlFilter.doFilter(query, UsersItemExtendedDto.class);
   }
 
   @PostMapping

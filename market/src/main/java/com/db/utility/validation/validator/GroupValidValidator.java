@@ -1,7 +1,7 @@
 package com.db.utility.validation.validator;
 
 import com.db.utility.validation.annotation.GroupValid;
-import com.db.utility.validation.annotation.Recursive;
+import com.db.utility.Recursive;
 import java.lang.reflect.Field;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

@@ -5,9 +5,8 @@ import com.db.exception.ServiceException;
 import com.db.model.Game;
 import com.db.model.filter.GameFilter;
 import com.db.service.GamesService;
-import com.db.utility.filter.Filter;
-import com.db.utility.filter.model.FilterResult;
-import com.db.utility.mapper.ModelMapper;
+import com.db.utility.sql.filter.SqlFilter;
+import com.db.utility.sql.filter.model.FilterResult;
 import com.db.utility.validation.ConstraintMessages;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.Valid;
@@ -28,13 +27,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class GamesController {
   private final GamesService gamesService;
-  private final Filter filter;
+  private final SqlFilter sqlFilter;
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
   public FilterResult<Game> getGames(@RequestBody @Valid GameFilter query) throws ServiceException {
-    return filter.doFilter(query, Game.class);
+    return sqlFilter.doFilter(query, Game.class);
   }
 
   @GetMapping("/{id}")

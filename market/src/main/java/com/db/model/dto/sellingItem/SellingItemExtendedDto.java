@@ -1,7 +1,7 @@
 package com.db.model.dto.sellingItem;
 
 import com.db.model.Item;
-import com.db.utility.validation.annotation.Recursive;
+import com.db.utility.Recursive;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;

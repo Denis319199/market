@@ -1,4 +1,4 @@
-package com.db.utility.validation.annotation;
+package com.db.utility;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

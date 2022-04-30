@@ -1,9 +1,9 @@
 package com.db.model.filter;
 
 import com.db.model.Game;
-import com.db.utility.filter.annotation.FilterModel;
-import com.db.utility.filter.annotation.FilterOperation;
-import com.db.utility.filter.model.Operation;
+import com.db.utility.sql.filter.annotation.FilterModel;
+import com.db.utility.sql.filter.annotation.FilterOperation;
+import com.db.utility.sql.filter.model.Operation;
 import com.db.utility.validation.ConstraintMessages;
 import com.db.utility.validation.annotation.MinArray;
 import java.math.BigDecimal;

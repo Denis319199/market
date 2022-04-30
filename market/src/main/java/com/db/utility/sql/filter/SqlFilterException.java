@@ -1,6 +1,6 @@
-package com.db.utility.filter;
+package com.db.utility.sql.filter;
 
-public class FilterException extends Exception {
+public class SqlFilterException extends Exception {
 
   public static final String CANNOT_GET_ACCESS_TO_FIELD = "Filter cannot access to some field";
   public static final String THERE_IS_NO_SUCH_ATTRIBUTE = "There is no such attribute";
@@ -17,12 +17,12 @@ public class FilterException extends Exception {
     return additionalInfo;
   }
 
-  public FilterException(String message) {
+  public SqlFilterException(String message) {
     super(message);
     additionalInfo = null;
   }
 
-  public FilterException(String message, String additionalInfo) {
+  public SqlFilterException(String message, String additionalInfo) {
     super(message);
     this.additionalInfo = additionalInfo;
   }

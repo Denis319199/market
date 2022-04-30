@@ -1,7 +1,7 @@
 package com.db.model.dto.usersItem;
 
 import com.db.model.Item;
-import com.db.utility.validation.annotation.Recursive;
+import com.db.utility.Recursive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

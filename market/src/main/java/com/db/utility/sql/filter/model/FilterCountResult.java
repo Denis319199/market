@@ -1,4 +1,4 @@
-package com.db.utility.filter.model;
+package com.db.utility.sql.filter.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

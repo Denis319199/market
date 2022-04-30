@@ -3,8 +3,8 @@ package com.db.endpoint.userFlow;
 import com.db.exception.ServiceException;
 import com.db.model.Purchase;
 import com.db.model.filter.PurchaseFilter;
-import com.db.utility.filter.Filter;
-import com.db.utility.filter.model.FilterResult;
+import com.db.utility.sql.filter.SqlFilter;
+import com.db.utility.sql.filter.model.FilterResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import javax.validation.Valid;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasRole('ROLE_USER')")
 @Validated
 public class PurchasesUserController {
-  private final Filter filter;
+  private final SqlFilter sqlFilter;
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
@@ -42,6 +42,6 @@ public class PurchasesUserController {
       query.setCustomerId(new Integer[] {(Integer) auth.getPrincipal()});
     }
 
-    return filter.doFilter(query, Purchase.class);
+    return sqlFilter.doFilter(query, Purchase.class);
   }
 }
