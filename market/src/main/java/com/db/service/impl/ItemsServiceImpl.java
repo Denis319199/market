@@ -25,6 +25,7 @@ public class ItemsServiceImpl implements ItemsService {
   private final ItemsImagesRepo itemsImagesRepo;
   private final ModelMapper modelMapper;
 
+  @Override
   @Transactional(readOnly = true)
   public Item findItemById(int id) throws ItemsServiceException {
     Optional<Item> item = itemsRepo.findById(id);
@@ -36,11 +37,7 @@ public class ItemsServiceImpl implements ItemsService {
     return item.get();
   }
 
-  @Transactional(readOnly = true)
-  public List<Item> getAllItems(int page, int size) {
-    return itemsRepo.findAll(PageRequest.of(page, size)).getContent();
-  }
-
+  @Override
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Item insertItem(Item item) throws ItemsServiceException {
     try {
@@ -50,6 +47,7 @@ public class ItemsServiceImpl implements ItemsService {
     }
   }
 
+  @Override
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Item updateItem(Item item) throws ItemsServiceException {
     Item old = findItemById(item.getId());
@@ -62,15 +60,17 @@ public class ItemsServiceImpl implements ItemsService {
     }
   }
 
+  @Override
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public void deleteItem(int id) throws ItemsServiceException {
     try {
       itemsRepo.deleteById(id);
-    } catch (EmptyResultDataAccessException ex) {
+    } catch (DataAccessException ex) {
       throw new ItemsServiceException(ex.getMessage());
     }
   }
 
+  @Override
   @Transactional(readOnly = true)
   public ItemsImage getItemsImage(int itemId) throws ItemsServiceException {
     Optional<ItemsImage> image = itemsImagesRepo.findById(itemId);
@@ -82,29 +82,37 @@ public class ItemsServiceImpl implements ItemsService {
     return image.get();
   }
 
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void insertItemsImage(ItemsImage image) throws ItemsServiceException {
-    if (itemsImagesRepo.existsById(image.getItemId())) {
-      throw new ItemsServiceException(ItemsServiceException.ITEMS_IMAGE_ALREADY_EXISTS);
+  @Override
+  public void putItemsImage(ItemsImage image) throws ItemsServiceException {
+    Item item = findItemById(image.getItemId());
+
+    if (!item.getIsImagePresented()) {
+      item.setIsImagePresented(true);
+      itemsRepo.save(item);
     }
 
-    itemsImagesRepo.save(image);
-  }
-
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void updateItemsImage(ItemsImage image) throws ItemsServiceException {
-    if (!itemsImagesRepo.existsById(image.getItemId())) {
-      throw new ItemsServiceException(ItemsServiceException.ITEMS_IMAGE_NOT_FOUND);
+    try {
+      itemsImagesRepo.save(image);
+    } catch (DataAccessException ex) {
+      throw new ItemsServiceException(ex.getMessage());
     }
-
-    itemsImagesRepo.save(image);
   }
 
+  @Override
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public void deleteItemsImage(int itemId) throws ItemsServiceException {
     try {
+      Item item = findItemById(itemId);
+
+      if (!item.getIsImagePresented()) {
+        throw new ItemsServiceException(ItemsServiceException.ITEMS_IMAGE_NOT_FOUND);
+      }
+
+      item.setIsImagePresented(false);
+      itemsRepo.save(item);
+
       itemsImagesRepo.deleteById(itemId);
-    } catch (EmptyResultDataAccessException ex) {
+    } catch (DataAccessException ex) {
       throw new ItemsServiceException(ex.getMessage());
     }
   }

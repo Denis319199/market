@@ -19,80 +19,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/* Any checks for user's id correctness is unnecessary, since these operations can be made by only plain user
+ * authenticated, that is, their id is already known and doesn't require check.
+ */
 @Service
 @RequiredArgsConstructor
-@Profile({"prod", "!auth-service-disabled"})
 public class PurchasesServiceImpl implements PurchasesService {
   protected final PurchasesRepo purchasesRepo;
   protected final AuthClient authClient;
   protected final ModelMapper modelMapper;
 
   @Override
-  @Transactional(readOnly = true)
-  public List<Purchase> getAllPurchases(int page, int size) {
-    return purchasesRepo.findAll(PageRequest.of(page, size)).getContent();
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public Purchase findPurchaseById(int id) throws PurchasesServiceException {
-    Optional<Purchase> purchase = purchasesRepo.findById(id);
-
-    if (purchase.isEmpty()) {
-      throw new PurchasesServiceException(PurchasesServiceException.PURCHASE_NOT_FOUND);
-    }
-
-    return purchase.get();
-  }
-
-  @Override
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public Purchase insertPurchase(Purchase purchase) throws PurchasesServiceException {
-     if (!authClient
-        .checkUsersExistence(List.of(purchase.getCustomerId(), purchase.getSellerId()), true)
-        .stream()
-        .allMatch(val -> val)) {
-      throw new PurchasesServiceException(PurchasesServiceException.BAD_SELLER_OR_CUSTOMER_ID);
-    }
-
+  public Purchase insertPurchaseWithoutUsersCheck(Purchase purchase) throws PurchasesServiceException {
     try {
       return purchasesRepo.save(purchase);
-    } catch (DataAccessException ex) {
-      throw new PurchasesServiceException(ex.getMessage());
-    }
-  }
-
-  @Override
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public Purchase updatePurchase(Purchase purchase) throws PurchasesServiceException {
-    Purchase old = findPurchaseById(purchase.getId());
-
-    List<Integer> usersList = new ArrayList<>();
-    if (Objects.nonNull(purchase.getCustomerId())) {
-      usersList.add(purchase.getCustomerId());
-    }
-    if (Objects.nonNull(purchase.getSellerId())) {
-      usersList.add(purchase.getSellerId());
-    }
-    if (!usersList.isEmpty()
-        && !authClient.checkUsersExistence(usersList, true).stream().allMatch(val -> val)) {
-      throw new PurchasesServiceException(PurchasesServiceException.BAD_SELLER_OR_CUSTOMER_ID);
-    }
-
-    modelMapper.merge(purchase, old);
-
-    try {
-      return purchasesRepo.save(purchase);
-    } catch (DataAccessException ex) {
-      throw new PurchasesServiceException(ex.getMessage());
-    }
-  }
-
-  @Override
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public void deletePurchase(int id) throws PurchasesServiceException {
-    try {
-      purchasesRepo.deleteById(id);
     } catch (DataAccessException ex) {
       throw new PurchasesServiceException(ex.getMessage());
     }

@@ -15,7 +15,6 @@ import com.db.utility.mapper.ModelMapper;
 import com.db.utility.sql.SqlQueryExecutor;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -26,9 +25,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/* Any checks for user's id correctness is unnecessary, since these operations can be made by only plain user
+ * authenticated, that is, their id is already known and doesn't require check.
+ */
 @Service
 @RequiredArgsConstructor
-@Profile({"prod", "!auth-service-disabled"})
 public class SellingItemsServiceImpl implements SellingItemsService {
   protected final SellingItemsRepo sellingItemsRepo;
   protected final AuthClient authClient;
@@ -36,48 +37,6 @@ public class SellingItemsServiceImpl implements SellingItemsService {
   protected final PurchasesService purchasesService;
   protected final SqlQueryExecutor sqlQueryExecutor;
   protected final ModelMapper modelMapper;
-
-  @Override
-  @Transactional(readOnly = true)
-  public List<SellingItem> getAllSellingItems(int page, int size) {
-    return sellingItemsRepo.findAll(PageRequest.of(page, size)).getContent();
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public List<SellingItem> getAllSellingItemsWithFilters(
-      int page,
-      int size,
-      boolean isOwn,
-      int userId,
-      Integer game,
-      String orderBy,
-      boolean ascOrder) {
-/*    SqlQueryBuilder queryBuilder =
-        SqlQueryBuilder.builder().select("s.*").from("selling_items").as("s");
-
-    if (Objects.nonNull(game)) {
-      queryBuilder.innerJoin("items").as("i").on("s.item_id = i.id");
-    }
-
-    String comparingSign;
-    if (isOwn) {
-      comparingSign = "=";
-    } else {
-      comparingSign = "!=";
-    }
-    queryBuilder.where("s.seller_id %s %o", comparingSign, userId);
-
-    if (Objects.nonNull(game)) {
-      queryBuilder.and("i.game_id = %o", game);
-    }
-
-    String query = queryBuilder.orderBy(ascOrder, "price").limit(size).offset(page * size).build();
-
-    return sqlQueryExecutor.execute(query, SellingItem.class);*/
-
-    return null;
-  }
 
   @Override
   @Transactional(readOnly = true)
@@ -93,33 +52,8 @@ public class SellingItemsServiceImpl implements SellingItemsService {
 
   @Override
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public SellingItem insertSellingItem(SellingItem sellingItem)
+  public SellingItem insertSellingItemWithoutUserCheck(SellingItem sellingItem)
       throws SellingItemsServiceException {
-    if (!authClient.checkUsersExistence(List.of(sellingItem.getSellerId()), true).get(0)) {
-      throw new SellingItemsServiceException(SellingItemsServiceException.BAD_SELLER_ID);
-    }
-
-    try {
-      return sellingItemsRepo.save(sellingItem);
-    } catch (DataAccessException ex) {
-      throw new SellingItemsServiceException(ex.getMessage());
-    }
-  }
-
-  @Override
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-  public SellingItem updateSellingItem(SellingItem sellingItem)
-      throws SellingItemsServiceException {
-    SellingItem old = findSellingItemById(sellingItem.getId());
-
-    if (Objects.nonNull(sellingItem.getSellerId())) {
-      if (!authClient.checkUsersExistence(List.of(sellingItem.getSellerId()), true).get(0)) {
-        throw new SellingItemsServiceException(SellingItemsServiceException.BAD_SELLER_ID);
-      }
-    }
-
-    modelMapper.merge(sellingItem, old);
-
     try {
       return sellingItemsRepo.save(sellingItem);
     } catch (DataAccessException ex) {
@@ -139,12 +73,11 @@ public class SellingItemsServiceImpl implements SellingItemsService {
 
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
-  public void sellItem(SellingItem sellingItem)
-      throws SellingItemsServiceException, ServiceException {
+  public void sellItemWithoutUserCheck(SellingItem sellingItem) throws SellingItemsServiceException {
     try {
-      usersItemsService.takeItemFromUser(sellingItem.getSellerId(), sellingItem.getItemId());
+      usersItemsService.takeItemFromUserWithoutUserCheck(sellingItem.getSellerId(), sellingItem.getItemId());
 
-      insertSellingItem(sellingItem);
+      insertSellingItemWithoutUserCheck(sellingItem);
     } catch (UsersItemsServiceException ex) {
       throw new SellingItemsServiceException(ex.getMessage());
     }
@@ -152,32 +85,32 @@ public class SellingItemsServiceImpl implements SellingItemsService {
 
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
-  public void removeItemFromSale(int id, int sellerId)
-      throws SellingItemsServiceException, ServiceException {
+  public void removeItemFromSale(int id, int sellerId) throws SellingItemsServiceException {
     SellingItem sellingItem = findSellingItemById(id);
 
     if (sellingItem.getSellerId() != sellerId) {
       throw new SellingItemsServiceException(SellingItemsServiceException.USER_IS_NOT_AN_OWNER);
     }
 
-    usersItemsService.addItemToUser(sellerId, sellingItem.getItemId());
+    usersItemsService.addItemToUserWithoutUserCheck(sellerId, sellingItem.getItemId());
     deleteSellingItem(id);
   }
 
   @Override
   @Transactional(isolation = Isolation.REPEATABLE_READ)
-  public void purchaseItem(int id, int customerId)
+  public void purchaseItemWithoutUserCheck(int sellingItemId, int customerId)
       throws SellingItemsServiceException, ServiceException {
-    SellingItem sellingItem = findSellingItemById(id);
+    SellingItem sellingItem = findSellingItemById(sellingItemId);
 
     if (sellingItem.getSellerId() == customerId) {
       throw new SellingItemsServiceException(
           SellingItemsServiceException.USER_CANT_BUY_THEIR_OWN_ITEM);
     }
 
-    usersItemsService.addItemToUser(customerId, sellingItem.getItemId());
+    usersItemsService.addItemToUserWithoutUserCheck(customerId, sellingItem.getItemId());
+
     try {
-      purchasesService.insertPurchase(
+      purchasesService.insertPurchaseWithoutUsersCheck(
           Purchase.builder()
               .sellerId(sellingItem.getSellerId())
               .customerId(customerId)
@@ -189,6 +122,6 @@ public class SellingItemsServiceImpl implements SellingItemsService {
       throw new ServiceException(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    deleteSellingItem(id);
+    deleteSellingItem(sellingItemId);
   }
 }

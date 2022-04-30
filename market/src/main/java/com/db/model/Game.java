@@ -39,4 +39,7 @@ public class Game {
 
   @Column(name = "price")
   private BigDecimal price;
+
+  @Column(name = "total_image_count")
+  private Integer totalImageCount;
 }

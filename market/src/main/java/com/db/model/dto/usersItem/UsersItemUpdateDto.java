@@ -1,5 +1,6 @@
 package com.db.model.dto.usersItem;
 
+import com.db.utility.validation.ConstraintMessages;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,14 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsersItemUpdateDto {
-  @NotNull
-  @Min(1)
+  @NotNull(message = ConstraintMessages.NOT_NULL)
+  @Min(value = 1, message = ConstraintMessages.MIN)
   private Integer userId;
 
-  @NotNull
-  @Min(1)
+  @NotNull(message = ConstraintMessages.NOT_NULL)
+  @Min(value = 1, message = ConstraintMessages.MIN)
   private Integer itemId;
 
-  @Min(1)
+  @Min(value = 1, message = ConstraintMessages.MIN)
   private Integer quantity;
 }

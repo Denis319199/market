@@ -28,4 +28,7 @@ public class Item {
 
   @Column(name = "game_id")
   private Integer gameId;
+
+  @Column(name = "is_image_presented")
+  private Boolean isImagePresented;
 }

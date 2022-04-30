@@ -41,8 +41,8 @@ public class SqlQueryBuilder {
     return this;
   }
 
-  public SqlQueryBuilder on(String condition, Object... values) {
-    query.append(" ON ").append(String.format(condition, values));
+  public SqlQueryBuilder on(String condition) {
+    query.append(" ON ").append(condition);
 
     return this;
   }
@@ -59,20 +59,20 @@ public class SqlQueryBuilder {
     return this;
   }
 
-  public SqlQueryBuilder where(String condition, Object... values) {
-    query.append("\nWHERE ").append(String.format(condition, values));
+  public SqlQueryBuilder where(String condition) {
+    query.append("\nWHERE ").append(condition);
 
     return this;
   }
 
-  public SqlQueryBuilder and(String condition, Object... values) {
-    query.append(" AND ").append(String.format(condition, values));
+  public SqlQueryBuilder and(String condition) {
+    query.append(" AND ").append(condition);
 
     return this;
   }
 
-  public SqlQueryBuilder or(String condition, Object... values) {
-    query.append(" OR ").append(String.format(condition, values));
+  public SqlQueryBuilder or(String condition) {
+    query.append(" OR ").append(condition);
 
     return this;
   }
@@ -95,6 +95,17 @@ public class SqlQueryBuilder {
     return this;
   }
 
+  public SqlQueryBuilder orderBy(String[] what) {
+    query.append("\nORDER BY ");
+
+    query.append(what[0]);
+    for (int i = 1; i < what.length; ++i) {
+      query.append(", ").append(what[i]);
+    }
+
+    return this;
+  }
+
   public SqlQueryBuilder limit(int num) {
     query.append("\nLIMIT ").append(num);
 
@@ -107,13 +118,13 @@ public class SqlQueryBuilder {
     return this;
   }
 
-  public SqlQueryBuilder append(String str, Object... values) {
-    query.append(String.format(str, values));
+  public SqlQueryBuilder append(String str) {
+    query.append(str);
 
     return this;
   }
 
   public String build() {
-    return query.toString();
+    return query.append(';').toString();
   }
 }

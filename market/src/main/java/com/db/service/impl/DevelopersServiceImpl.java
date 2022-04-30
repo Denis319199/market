@@ -28,12 +28,6 @@ public class DevelopersServiceImpl implements DevelopersService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Developer> getAllDevelopers(int page, int size) {
-    return developersRepo.findAll(PageRequest.of(page, size)).getContent();
-  }
-
-  @Override
-  @Transactional(readOnly = true)
   public Developer findDeveloperById(int id) throws DevelopersServiceException {
     Optional<Developer> developer = developersRepo.findById(id);
     if (developer.isEmpty()) {

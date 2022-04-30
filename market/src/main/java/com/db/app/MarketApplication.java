@@ -1,10 +1,5 @@
 package com.db.app;
 
-import com.db.model.dto.filter.FilterTest;
-import com.db.model.dto.filter.FilterTestTest;
-import com.db.utility.filter.Filter;
-import java.time.Instant;
-import java.time.LocalDate;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;

@@ -7,7 +7,8 @@ public enum Operation {
   GREATER_THAN(">"),
   LESS_THAN_OR_EQUAL("<="),
   GREATER_THAN_OR_EQUAL(">="),
-  LIKE("LIKE");
+  LIKE("LIKE"),
+  CASE_INSENSITIVE_LIKE("");
 
   private final String sign;
 
@@ -17,6 +18,10 @@ public enum Operation {
 
   public String getSign() {
     return sign;
+  }
+
+  public boolean isPlain() {
+    return !this.equals(CASE_INSENSITIVE_LIKE); // TODO: Add CASE_INSENSITIVE_LIKE operation to filter
   }
 
   public Operation getOpposite() {

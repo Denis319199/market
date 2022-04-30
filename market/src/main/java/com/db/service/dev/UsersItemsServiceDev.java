@@ -6,7 +6,6 @@ import com.db.model.UsersItem;
 import com.db.model.UsersItemId;
 import com.db.repo.UsersItemsRepo;
 import com.db.service.impl.UsersItemsServiceImpl;
-import com.db.utility.Utilities;
 import com.db.utility.mapper.ModelMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
@@ -17,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Profile("auth-service-disabled")
 public class UsersItemsServiceDev extends UsersItemsServiceImpl {
-  public UsersItemsServiceDev(UsersItemsRepo usersItemsRepo, AuthClient authClient, ModelMapper modelMapper) {
+  public UsersItemsServiceDev(
+      UsersItemsRepo usersItemsRepo, AuthClient authClient, ModelMapper modelMapper) {
     super(usersItemsRepo, authClient, modelMapper);
   }
 

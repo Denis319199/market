@@ -1,9 +1,12 @@
 package com.db.utility.sql;
 
 import com.db.utility.Utilities;
+import com.db.utility.validation.annotation.Recursive;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -34,22 +37,22 @@ public class SqlQueryExecutor {
   static {
     CONVERTERS = new HashMap<>();
 
-    CONVERTERS.put(Boolean.class, ResultSet::getObject);
+    CONVERTERS.put(Boolean.class, ResultSet::getBoolean);
     CONVERTERS.put(boolean.class, ResultSet::getBoolean);
 
-    CONVERTERS.put(Byte.class, ResultSet::getObject);
+    CONVERTERS.put(Byte.class, ResultSet::getByte);
     CONVERTERS.put(byte.class, ResultSet::getByte);
 
-    CONVERTERS.put(Short.class, ResultSet::getObject);
+    CONVERTERS.put(Short.class, ResultSet::getShort);
     CONVERTERS.put(short.class, ResultSet::getShort);
 
-    CONVERTERS.put(Integer.class, ResultSet::getObject);
+    CONVERTERS.put(Integer.class, ResultSet::getInt);
     CONVERTERS.put(int.class, ResultSet::getInt);
 
-    CONVERTERS.put(Long.class, ResultSet::getObject);
+    CONVERTERS.put(Long.class, ResultSet::getLong);
     CONVERTERS.put(long.class, ResultSet::getLong);
 
-    CONVERTERS.put(Float.class, ResultSet::getObject);
+    CONVERTERS.put(Float.class, ResultSet::getFloat);
     CONVERTERS.put(float.class, ResultSet::getFloat);
 
     CONVERTERS.put(BigDecimal.class, ResultSet::getBigDecimal);
@@ -81,6 +84,7 @@ public class SqlQueryExecutor {
               while (resultSet.next()) {
                 result.add(convertTo(resultSet, clazz));
               }
+            } catch (Exception ignore) {
             }
           });
 
@@ -88,50 +92,55 @@ public class SqlQueryExecutor {
     }
   }
 
-  private <T> T convertTo(ResultSet resultSet, Class<T> clazz) {
-    try {
-      T instance = clazz.getConstructor().newInstance();
+  private <T> T convertTo(ResultSet resultSet, Class<T> clazz) throws Exception {
+    T instance = clazz.getDeclaredConstructor().newInstance();
 
-      for (final Field field : clazz.getDeclaredFields()) {
-        if (Objects.nonNull(field.getAnnotation(Transient.class))) {
-          continue;
-        }
-
-        Column column = field.getAnnotation(Column.class);
-        Enumerated enumerated = field.getAnnotation(Enumerated.class);
-
-        String columnName =
-            Objects.isNull(column)
-                ? Utilities.translateFromCamelToSnakeCase(field.getName())
-                : column.name();
-
-        StringBuilder setterName = new StringBuilder("set");
-        setterName.append(field.getName());
-        setterName.setCharAt(3, Character.toUpperCase(setterName.charAt(3)));
-
-        Class<?> fieldType = field.getType();
-
-        if (Objects.isNull(enumerated)) {
-          clazz
-              .getDeclaredMethod(setterName.toString(), fieldType)
-              .invoke(instance, CONVERTERS.get(fieldType).get(resultSet, columnName));
-        } else if (EnumType.ORDINAL.equals(enumerated.value())) {
-          clazz
-              .getDeclaredMethod(setterName.toString(), fieldType)
-              .invoke(instance, fieldType.getEnumConstants()[resultSet.getInt(columnName)]);
-        } else {
-          clazz
-              .getDeclaredMethod(setterName.toString(), fieldType)
-              .invoke(
-                  instance,
-                  fieldType
-                      .getDeclaredMethod("valueOf", String.class)
-                      .invoke(null, resultSet.getString(columnName)));
-        }
+    for (final Field field : clazz.getDeclaredFields()) {
+      if (field.getAnnotation(Transient.class) != null) {
+        continue;
       }
 
-      return instance;
-    } catch (Exception ignored) {
+      StringBuilder setterName = new StringBuilder("set");
+      setterName.append(field.getName());
+      setterName.setCharAt(3, Character.toUpperCase(setterName.charAt(3)));
+
+      try {
+        if (field.getAnnotation(Recursive.class) == null) {
+          clazz
+              .getDeclaredMethod(setterName.toString(), field.getType())
+              .invoke(instance, getValueFromResultSet(field, resultSet));
+        } else {
+          clazz
+              .getDeclaredMethod(setterName.toString(), field.getType())
+              .invoke(instance, convertTo(resultSet, field.getType()));
+        }
+      } catch (Exception ignore) {
+      }
+    }
+
+    return instance;
+  }
+
+  private Object getValueFromResultSet(Field field, ResultSet resultSet) {
+    try {
+      Column column = field.getAnnotation(Column.class);
+      Enumerated enumerated = field.getAnnotation(Enumerated.class);
+
+      String columnName =
+          column == null ? Utilities.translateFromCamelToSnakeCase(field.getName()) : column.name();
+
+      Class<?> fieldType = field.getType();
+      if (enumerated == null) {
+        return CONVERTERS.get(fieldType).get(resultSet, columnName);
+      } else if (EnumType.ORDINAL.equals(enumerated.value())) {
+
+        return fieldType.getEnumConstants()[resultSet.getInt(columnName)];
+      } else {
+        return fieldType
+            .getDeclaredMethod("valueOf", String.class)
+            .invoke(null, resultSet.getString(columnName));
+      }
+    } catch (Exception ex) {
       return null;
     }
   }

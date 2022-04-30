@@ -1,5 +1,6 @@
-package com.db.model.dto.developer;
+package com.db.model.dto.query;
 
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,12 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeveloperDto {
+public class Query6 {
     private Integer id;
-
     private String name;
-
-    private String address;
-
-    private Integer countryId;
+    private BigDecimal price;
 }

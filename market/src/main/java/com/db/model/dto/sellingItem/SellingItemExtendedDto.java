@@ -1,26 +1,21 @@
 package com.db.model.dto.sellingItem;
 
+import com.db.model.Item;
+import com.db.utility.validation.annotation.Recursive;
 import java.math.BigDecimal;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
+@Data
 @NoArgsConstructor
-public class SellingItemUpdateDto {
-  @NotNull
-  @Min(1)
+public class SellingItemExtendedDto {
   private Integer id;
 
-  @Min(1)
-  private Integer itemId;
+  @Recursive private Item item;
 
-  @Min(1)
   private Integer sellerId;
 
-  @Min(1)
   private BigDecimal price;
 }

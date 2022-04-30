@@ -59,11 +59,11 @@ public class Filter {
       this.modelClass = filterClass.getAnnotation(FilterModel.class).value();
       this.tableName = modelClass.getAnnotation(Table.class).name();
       this.innerJoin = filterInnerJoin;
-      parseFilter();
+      parseInnerJoinFilter();
     }
 
     public String buildQuery() throws FilterException {
-      SqlQueryBuilder sqlQueryBuilder = SqlQueryBuilder.builder().select(tableName + ".*");
+      SqlQueryBuilder sqlQueryBuilder = SqlQueryBuilder.builder().select("*");
 
       buildFromForQuery(sqlQueryBuilder);
 
@@ -87,8 +87,11 @@ public class Filter {
     }
 
     private void buildFromForQuery(SqlQueryBuilder sqlQueryBuilder) throws FilterException {
-      sqlQueryBuilder.from(tableName);
+      sqlQueryBuilder.from("");
+      buildFromForQueryImpl(sqlQueryBuilder);
+    }
 
+    private void buildFromForQueryImpl(SqlQueryBuilder sqlQueryBuilder) throws FilterException {
       for (InnerFilter innerFilter : innerFilters) {
         FilterInnerJoin filterInnerJoin = innerFilter.innerJoin;
         String[] lhs = filterInnerJoin.lhs();
@@ -104,18 +107,18 @@ public class Filter {
               "There is no criteria to join tables");
         }
 
-        sqlQueryBuilder
-            .innerJoin(tableName)
-            .on(getFullColumnName(lhs[0]))
-            .append(" = ")
-            .append(innerFilter.getFullColumnName(rhs[0]));
-
-        for (int i = 1; i < lhs.length; ++i) {
-          sqlQueryBuilder
-              .and(getFullColumnName(lhs[0]))
-              .append(" = ")
-              .append(innerFilter.getFullColumnName(rhs[i]));
+        StringJoiner joinCondition = new StringJoiner(" AND ");
+        for (int i = 0; i < lhs.length; ++i) {
+          joinCondition.add(
+              getFullColumnName(lhs[0]) + " = " + innerFilter.getFullColumnName(rhs[i]));
         }
+
+        sqlQueryBuilder
+            .append(tableName)
+            .innerJoin(innerFilter.tableName)
+            .on(joinCondition.toString());
+
+        innerFilter.buildFromForQueryImpl(sqlQueryBuilder);
       }
     }
 
@@ -127,7 +130,7 @@ public class Filter {
     }
 
     private void mergeConditions(InnerFilter filter) {
-      condition.add(filter.toString());
+      condition.add(filter.condition.toString());
       for (InnerFilter innerFilter : filter.innerFilters) {
         mergeConditions(innerFilter);
       }
@@ -168,16 +171,33 @@ public class Filter {
       }
     }
 
-    private void parseFilter() throws FilterException {
+    private void parseInnerJoinFilter() throws FilterException {
       for (Field filterField : filterClass.getDeclaredFields()) {
         FilterOperation filterOperation = filterField.getAnnotation(FilterOperation.class);
         if (filterOperation != null) {
           addCondition(filterField, filterOperation);
+          continue;
         }
 
         FilterInnerJoin filterInnerJoin = filterField.getAnnotation(FilterInnerJoin.class);
         if (filterInnerJoin != null) {
           innerFilters.add(new InnerFilter(getFieldValue(filterField.getName()), filterInnerJoin));
+        }
+      }
+    }
+
+    private void parseFilter() throws FilterException {
+      for (Field filterField : filterClass.getDeclaredFields()) {
+        FilterOperation filterOperation = filterField.getAnnotation(FilterOperation.class);
+        if (filterOperation != null) {
+          addCondition(filterField, filterOperation);
+          continue;
+        }
+
+        FilterInnerJoin filterInnerJoin = filterField.getAnnotation(FilterInnerJoin.class);
+        if (filterInnerJoin != null) {
+          innerFilters.add(new InnerFilter(getFieldValue(filterField.getName()), filterInnerJoin));
+          continue;
         }
 
         if (innerJoin == null) {
@@ -200,15 +220,17 @@ public class Filter {
           case "orderBy":
             if (filterField.getType().isArray()) {
               orderBy = (String[]) filterClass.getDeclaredMethod("getOrderBy").invoke(filterObj);
-              for (int i = 0; i < orderBy.length; ++i) {
-                orderBy[i] = getFullColumnName(orderBy[i]);
+              if (orderBy != null) {
+                for (int i = 0; i < orderBy.length; ++i) {
+                  orderBy[i] = getFullColumnName(orderBy[i]);
+                }
               }
             } else {
-              orderBy =
-                  new String[] {
-                    getFullColumnName(
-                        (String) filterClass.getDeclaredMethod("getOrderBy").invoke(filterObj))
-                  };
+              String orderByValue =
+                  (String) filterClass.getDeclaredMethod("getOrderBy").invoke(filterObj);
+              if (orderByValue != null) {
+                orderBy = new String[] {getFullColumnName(orderByValue)};
+              }
             }
             break;
 
@@ -216,10 +238,11 @@ public class Filter {
             if (filterField.getType().isArray()) {
               ascOrder = (Boolean[]) filterClass.getDeclaredMethod("getAscOrder").invoke(filterObj);
             } else {
-              ascOrder =
-                  new Boolean[] {
-                    (Boolean) filterClass.getDeclaredMethod("getAscOrder").invoke(filterObj)
-                  };
+              Boolean ascOrderValue =
+                  (Boolean) filterClass.getDeclaredMethod("getAscOrder").invoke(filterObj);
+              if (ascOrderValue != null) {
+                ascOrder = new Boolean[] {ascOrderValue};
+              }
             }
             break;
         }
