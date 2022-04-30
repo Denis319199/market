@@ -1,45 +1,49 @@
 package com.db.app.configuration;
 
-import java.util.Collections;
-import java.util.List;
+import com.db.app.configuration.properties.JwtProperties;
+import com.db.app.configuration.properties.SwaggerProperties;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiKey;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.SecurityReference;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
-@EnableSwagger2
+@RequiredArgsConstructor
 public class SwaggerConfiguration {
+  private final SwaggerProperties swaggerProperties;
+  private final JwtProperties jwtProperties;
+
+  private static final String API_TOKEN = "Token";
+
   @Bean
-  public Docket api() {
-    return new Docket(DocumentationType.SWAGGER_2)
-        .select()
-        .apis(RequestHandlerSelectors.any())
-        .paths(PathSelectors.any())
-        .build()
-        .securityContexts(securityContexts())
-        .securitySchemes(Collections.singletonList(apiKey()));
+  public OpenAPI api() {
+    return new OpenAPI()
+            .info(
+                    new Info()
+                            .description(swaggerProperties.getDescription())
+                            .title(swaggerProperties.getTitle()))
+            .addSecurityItem(new SecurityRequirement().addList(API_TOKEN))
+            .components(new Components().addSecuritySchemes(API_TOKEN, securityScheme()));
   }
 
-  private ApiKey apiKey() {
-    return new ApiKey("ACCESS_TOKEN", "Authorization", "header");
+  private SecurityScheme securityScheme() {
+    return new SecurityScheme()
+            .in(SecurityScheme.In.HEADER)
+            .scheme(API_TOKEN)
+            .name(jwtProperties.getHeader())
+            .type(SecurityScheme.Type.APIKEY);
   }
 
-  private List<SecurityReference> auth() {
-    AuthorizationScope[] authorizationScopes =
-        new AuthorizationScope[] {new AuthorizationScope("global", "access token")};
-
-    return Collections.singletonList(new SecurityReference("ACCESS_TOKEN", authorizationScopes));
-  }
-
-  private List<SecurityContext> securityContexts() {
-    return Collections.singletonList(SecurityContext.builder().securityReferences(auth()).build());
+  @Bean
+  public GroupedOpenApi groupedOpenApi() {
+    return GroupedOpenApi.builder()
+            .packagesToScan(swaggerProperties.getBasePackage())
+            .group(swaggerProperties.getVersion())
+            .build();
   }
 }

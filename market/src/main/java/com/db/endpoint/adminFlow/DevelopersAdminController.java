@@ -36,7 +36,7 @@ public class DevelopersAdminController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   @Operation
-  Developer insertDeveloper(@RequestBody @Valid DeveloperInsertDto developerDto)
+  public Developer insertDeveloper(@RequestBody @Valid DeveloperInsertDto developerDto)
       throws ServiceException {
     try {
       return developersService.insertDeveloper(modelMapper.map(developerDto, Developer.class));
@@ -48,7 +48,7 @@ public class DevelopersAdminController {
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  Developer updateDeveloper(@RequestBody @Valid DeveloperUpdateDto developerDto)
+  public Developer updateDeveloper(@RequestBody @Valid DeveloperUpdateDto developerDto)
       throws ServiceException {
     try {
       return developersService.updateDeveloper(modelMapper.map(developerDto, Developer.class));
@@ -60,7 +60,8 @@ public class DevelopersAdminController {
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  void deleteDeveloper(@RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int id)
+  public void deleteDeveloper(
+      @RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int id)
       throws ServiceException {
     try {
       developersService.deleteDeveloper(id);

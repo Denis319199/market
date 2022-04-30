@@ -37,7 +37,7 @@ public class ItemsAdminController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   @Operation
-  Item insertItem(@RequestBody @Valid ItemInsertDto itemDto) throws ServiceException {
+  public Item insertItem(@RequestBody @Valid ItemInsertDto itemDto) throws ServiceException {
     try {
       return itemsService.insertItem(modelMapper.map(itemDto, Item.class));
     } catch (ItemsServiceException ex) {
@@ -48,7 +48,7 @@ public class ItemsAdminController {
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  Item updateItem(@RequestBody @Valid ItemUpdateDto itemDto) throws ServiceException {
+  public Item updateItem(@RequestBody @Valid ItemUpdateDto itemDto) throws ServiceException {
     try {
       return itemsService.updateItem(modelMapper.map(itemDto, Item.class));
     } catch (ItemsServiceException ex) {
@@ -59,7 +59,7 @@ public class ItemsAdminController {
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  void deleteItem(@RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int id)
+  public void deleteItem(@RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int id)
       throws ServiceException {
     try {
       itemsService.deleteItem(id);

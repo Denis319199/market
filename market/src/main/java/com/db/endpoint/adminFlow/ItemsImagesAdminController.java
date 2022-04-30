@@ -4,6 +4,7 @@ import com.db.exception.ItemsServiceException;
 import com.db.exception.ServiceException;
 import com.db.model.ItemsImage;
 import com.db.service.ItemsService;
+import com.db.utility.validation.ConstraintMessages;
 import com.db.utility.validation.annotation.Image;
 import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
@@ -32,7 +33,8 @@ public class ItemsImagesAdminController {
   @PutMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  void insertItemsImage(@RequestParam @Image MultipartFile image, @RequestParam @Min(1) int itemId)
+  public void insertItemsImage(
+      @RequestParam @Image MultipartFile image, @RequestParam @Min(1) int itemId)
       throws IOException, ServiceException {
     try {
       itemsService.putItemsImage(new ItemsImage(itemId, image.getBytes()));
@@ -44,7 +46,9 @@ public class ItemsImagesAdminController {
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  void deleteItemsImage(@RequestParam @Min(1) int itemId) throws ServiceException {
+  public void deleteItemsImage(
+      @RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int itemId)
+      throws ServiceException {
     try {
       itemsService.deleteItemsImage(itemId);
     } catch (ItemsServiceException ex) {

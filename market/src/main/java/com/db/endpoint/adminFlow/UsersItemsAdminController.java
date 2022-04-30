@@ -51,7 +51,7 @@ public class UsersItemsAdminController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   @Operation
-  UsersItem insertUsersItem(@RequestBody @Valid UsersItemInsertDto usersItemDto)
+  public UsersItem insertUsersItem(@RequestBody @Valid UsersItemInsertDto usersItemDto)
       throws ServiceException {
     try {
       return usersItemsService.insertUsersItem(modelMapper.map(usersItemDto, UsersItem.class));
@@ -63,7 +63,7 @@ public class UsersItemsAdminController {
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  UsersItem updateUsersItem(@RequestBody @Valid UsersItemUpdateDto usersItemDto)
+  public UsersItem updateUsersItem(@RequestBody @Valid UsersItemUpdateDto usersItemDto)
       throws ServiceException {
     try {
       return usersItemsService.updateUsersItem(modelMapper.map(usersItemDto, UsersItem.class));

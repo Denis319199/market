@@ -4,6 +4,7 @@ import com.db.exception.GamesServiceException;
 import com.db.exception.ServiceException;
 import com.db.service.GamesService;
 import com.db.utility.validation.ConstraintMessages;
+import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,8 @@ public class GamesImagesController {
 
   @GetMapping(produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
   @ResponseStatus(HttpStatus.OK)
-  byte[] getGamesImage(
+  @Operation
+  public byte[] getGamesImage(
       @RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int gameId,
       @RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int num)
       throws ServiceException {

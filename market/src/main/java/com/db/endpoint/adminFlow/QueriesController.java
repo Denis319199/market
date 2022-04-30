@@ -9,15 +9,18 @@ import com.db.model.dto.query.Query5And7And8;
 import com.db.model.dto.query.Query6;
 import com.db.utility.sql.SqlQueryExecutor;
 import com.db.utility.validation.ConstraintMessages;
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -129,6 +132,8 @@ public class QueriesController {
   }
 
   @GetMapping("/{queryId}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation
   public List<?> executeQuery(
       @PathVariable
           @Min(value = 1, message = ConstraintMessages.MIN)

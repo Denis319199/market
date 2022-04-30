@@ -33,14 +33,14 @@ public class GamesController {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  FilterResult<Game> getGames(@RequestBody @Valid GameFilter query) throws ServiceException {
+  public FilterResult<Game> getGames(@RequestBody @Valid GameFilter query) throws ServiceException {
     return filter.doFilter(query, Game.class);
   }
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  Game getGame(@PathVariable @Min(value = 1, message = ConstraintMessages.MIN) int id)
+  public Game getGame(@PathVariable @Min(value = 1, message = ConstraintMessages.MIN) int id)
       throws ServiceException {
     try {
       return gamesService.findGameById(id);

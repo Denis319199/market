@@ -36,7 +36,7 @@ public class OperationsOverItemsUserController {
   @PostMapping("/sell")
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  void sellItem(@RequestBody @Valid SellingItemInsertDto sellingItemDto, Authentication auth)
+  public void sellItem(@RequestBody @Valid SellingItemInsertDto sellingItemDto, Authentication auth)
       throws ServiceException {
     SellingItem sellingItem = modelMapper.map(sellingItemDto, SellingItem.class);
     sellingItem.setSellerId((Integer) auth.getPrincipal());
@@ -50,7 +50,7 @@ public class OperationsOverItemsUserController {
   @PostMapping("/purchase")
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  void purchaseItem(
+  public void purchaseItem(
       @RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int sellingItemId,
       @Parameter(hidden = true) Authentication auth)
       throws ServiceException {
@@ -63,8 +63,9 @@ public class OperationsOverItemsUserController {
   }
 
   @DeleteMapping("/withdraw")
+  @ResponseStatus(HttpStatus.OK)
   @Operation
-  void removeItemFromSale(
+  public void removeItemFromSale(
       @RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int id,
       @Parameter(hidden = true) Authentication auth)
       throws ServiceException {

@@ -37,7 +37,7 @@ public class GamesAdminController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   @Operation
-  Game insertGame(@RequestBody @Valid GameInsertDto gameDto) throws ServiceException {
+  public Game insertGame(@RequestBody @Valid GameInsertDto gameDto) throws ServiceException {
     try {
       return gamesService.insertGame(modelMapper.map(gameDto, Game.class));
     } catch (GamesServiceException ex) {
@@ -48,7 +48,7 @@ public class GamesAdminController {
   @PatchMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  Game updateGame(@RequestBody @Valid GameUpdateDto gameDto) throws ServiceException {
+  public Game updateGame(@RequestBody @Valid GameUpdateDto gameDto) throws ServiceException {
     try {
       return gamesService.updateGame(modelMapper.map(gameDto, Game.class));
     } catch (GamesServiceException ex) {
@@ -59,7 +59,7 @@ public class GamesAdminController {
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  void deleteGame(@RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int id)
+  public void deleteGame(@RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int id)
       throws ServiceException {
     try {
       gamesService.deleteGame(id);

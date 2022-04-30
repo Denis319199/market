@@ -4,6 +4,7 @@ import com.db.exception.ItemsServiceException;
 import com.db.exception.ServiceException;
 import com.db.service.ItemsService;
 import com.db.utility.validation.ConstraintMessages;
+import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,9 @@ public class ItemsImagesController {
       value = "/{itemId}",
       produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
   @ResponseStatus(HttpStatus.OK)
-  byte[] getItemsImage(@PathVariable @Min(value = 1, message = ConstraintMessages.MIN) int itemId)
+  @Operation
+  public byte[] getItemsImage(
+      @PathVariable @Min(value = 1, message = ConstraintMessages.MIN) int itemId)
       throws ServiceException {
     try {
       return itemsService.getItemsImage(itemId).getImage();

@@ -41,7 +41,8 @@ public class DevelopersController {
   @GetMapping(value = "/{id}")
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  Developer getDeveloper(@PathVariable @Min(value = 1, message = ConstraintMessages.MIN) int id)
+  public Developer getDeveloper(
+      @PathVariable @Min(value = 1, message = ConstraintMessages.MIN) int id)
       throws ServiceException {
     try {
       return developersService.findDeveloperById(id);

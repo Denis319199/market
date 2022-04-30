@@ -32,7 +32,8 @@ public class GamesImagesAdminController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   @Operation
-  void insertGamesImage(@RequestParam @Image MultipartFile image, @RequestParam @Min(1) int gameId)
+  public void insertGamesImage(
+      @RequestParam @Image MultipartFile image, @RequestParam @Min(1) int gameId)
       throws IOException, ServiceException {
     try {
       gamesService.insertGamesImage(new GamesImage(null, gameId, image.getBytes()));
@@ -44,7 +45,7 @@ public class GamesImagesAdminController {
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  void deleteGamesImage(
+  public void deleteGamesImage(
       @RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int gameId,
       @RequestParam @Min(value = 1, message = ConstraintMessages.MIN) int num)
       throws ServiceException {
