@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +30,7 @@ public class UsersItemsController {
   @ResponseStatus(HttpStatus.OK)
   @Operation
   public FilterResult<UsersItemExtendedDto> getUsersItems(
-      @RequestBody @Valid UsersItemFilter query, @Parameter(hidden = true) Authentication auth)
+      @Valid UsersItemFilter query, @Parameter(hidden = true) Authentication auth)
       throws ServiceException {
     query.setUserId((Integer) auth.getPrincipal());
     return sqlFilter.doFilter(query, UsersItemExtendedDto.class);

@@ -53,13 +53,19 @@ public class SqlFilter {
       parseFilter();
     }
 
-    private InnerFilter(Object filterObj, FilterInnerJoin filterInnerJoin) throws SqlFilterException {
+    private InnerFilter(Object filterObj, Class<?> filterClass, FilterInnerJoin filterInnerJoin)
+        throws SqlFilterException {
       this.filterObj = filterObj;
-      this.filterClass = filterObj.getClass();
+      this.filterClass = filterClass;
       this.modelClass = filterClass.getAnnotation(FilterModel.class).value();
       this.tableName = modelClass.getAnnotation(Table.class).name();
       this.innerJoin = filterInnerJoin;
-      parseInnerJoinFilter();
+
+      if (filterObj != null) {
+        parseInnerJoinFilter();
+      } else {
+        parseEmptyInnerJoinFilter();
+      }
     }
 
     public String buildQuery() throws SqlFilterException {
@@ -134,7 +140,10 @@ public class SqlFilter {
     }
 
     private void mergeConditions(InnerFilter filter) {
-      condition.add(filter.condition.toString());
+      if (filter.condition.length() != 0) {
+        condition.add(filter.condition.toString());
+      }
+
       for (InnerFilter innerFilter : filter.innerFilters) {
         mergeConditions(innerFilter);
       }
@@ -185,10 +194,24 @@ public class SqlFilter {
 
         FilterInnerJoin filterInnerJoin = filterField.getAnnotation(FilterInnerJoin.class);
         if (filterInnerJoin != null) {
-          innerFilters.add(new InnerFilter(getFieldValue(filterField.getName()), filterInnerJoin));
+          innerFilters.add(
+              new InnerFilter(
+                  getFieldValue(filterField.getName()), filterField.getType(), filterInnerJoin));
         }
       }
     }
+
+    private void parseEmptyInnerJoinFilter() throws SqlFilterException {
+      for (Field filterField : filterClass.getDeclaredFields()) {
+        FilterInnerJoin filterInnerJoin = filterField.getAnnotation(FilterInnerJoin.class);
+        if (filterInnerJoin != null) {
+          innerFilters.add(
+                  new InnerFilter(
+                          getFieldValue(filterField.getName()), filterField.getType(), filterInnerJoin));
+        }
+      }
+    }
+
 
     private void parseFilter() throws SqlFilterException {
       for (Field filterField : filterClass.getDeclaredFields()) {
@@ -200,7 +223,9 @@ public class SqlFilter {
 
         FilterInnerJoin filterInnerJoin = filterField.getAnnotation(FilterInnerJoin.class);
         if (filterInnerJoin != null) {
-          innerFilters.add(new InnerFilter(getFieldValue(filterField.getName()), filterInnerJoin));
+          innerFilters.add(
+              new InnerFilter(
+                  getFieldValue(filterField.getName()), filterField.getType(), filterInnerJoin));
           continue;
         }
 

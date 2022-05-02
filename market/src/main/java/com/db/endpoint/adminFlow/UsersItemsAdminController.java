@@ -43,7 +43,7 @@ public class UsersItemsAdminController {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  public FilterResult<UsersItemExtendedDto> getUsersItems(@RequestBody @Valid UsersItemFilter query)
+  public FilterResult<UsersItemExtendedDto> getUsersItems(@Valid UsersItemFilter query)
       throws ServiceException {
     return sqlFilter.doFilter(query, UsersItemExtendedDto.class);
   }

@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +32,7 @@ public class DevelopersController {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation
-  public FilterResult<Developer> getDevelopers(@RequestBody @Valid DeveloperFilter query)
+  public FilterResult<Developer> getDevelopers(@Valid DeveloperFilter query)
       throws ServiceException {
     return sqlFilter.doFilter(query, Developer.class);
   }
