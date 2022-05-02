@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/items/selling")
+@RequestMapping("/admin/item/selling")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 @Validated
 public class SellingItemsAdminController {

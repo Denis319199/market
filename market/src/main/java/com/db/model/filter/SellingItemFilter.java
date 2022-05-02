@@ -19,11 +19,10 @@ public class SellingItemFilter {
   @Min(value = 1, message = ConstraintMessages.MIN)
   private Integer sellerId;
 
+  private Boolean isOwn;
+
   @FilterInnerJoin(lhs = "itemId", rhs = "id")
   private ItemFilter item;
-
-  @NotNull(message = ConstraintMessages.NOT_NULL)
-  private Boolean isOwn;
 
   @Min(value = 0, message = ConstraintMessages.MIN)
   private Integer page;

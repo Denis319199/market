@@ -208,12 +208,11 @@ public class SqlFilter {
         FilterInnerJoin filterInnerJoin = filterField.getAnnotation(FilterInnerJoin.class);
         if (filterInnerJoin != null) {
           innerFilters.add(
-                  new InnerFilter(
-                          getFieldValue(filterField.getName()), filterField.getType(), filterInnerJoin));
+              new InnerFilter(
+                  getFieldValue(filterField.getName()), filterField.getType(), filterInnerJoin));
         }
       }
     }
-
 
     private void parseFilter() throws SqlFilterException {
       for (Field filterField : filterClass.getDeclaredFields()) {
@@ -336,21 +335,19 @@ public class SqlFilter {
 
     private String getSign(FilterOperation filterOperation) {
       try {
-        if (filterOperation.flag().isEmpty()) {
-          return filterOperation.op().getSign();
-        } else {
+        if (!filterOperation.flag().isEmpty()) {
           Field flagField = filterClass.getDeclaredField(filterOperation.flag());
 
           if (!flagField.getType().equals(Boolean.class)) {
             throw new Exception("Operation flag is not boolean type");
           }
 
-          if ((Boolean) getFieldValue(flagField.getName())) {
-            return filterOperation.op().getSign();
-          } else {
+          Object flagValue = getFieldValue(flagField.getName());
+          if (flagValue != null && !(Boolean) flagValue) {
             return filterOperation.op().getOpposite().getSign();
           }
         }
+        return filterOperation.op().getSign();
       } catch (Exception ignore) {
         return null;
       }
