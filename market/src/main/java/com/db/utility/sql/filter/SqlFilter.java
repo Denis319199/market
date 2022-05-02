@@ -136,7 +136,9 @@ public class SqlFilter {
       for (InnerFilter innerFilter : innerFilters) {
         mergeConditions(innerFilter);
       }
-      sqlQueryBuilder.where(condition.toString());
+      if (condition.length() != 0) {
+        sqlQueryBuilder.where(condition.toString());
+      }
     }
 
     private void mergeConditions(InnerFilter filter) {
