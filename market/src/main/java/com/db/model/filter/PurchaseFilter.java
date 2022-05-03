@@ -12,6 +12,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.PastOrPresent;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @FilterModel(Purchase.class)
 @Data
@@ -31,10 +32,12 @@ public class PurchaseFilter {
 
   @FilterOperation(op = Operation.GREATER_THAN_OR_EQUAL, fieldName = "purchaseDate")
   @PastOrPresent(message = ConstraintMessages.PAST_OR_PRESENT)
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate purchaseDateBeg;
 
   @FilterOperation(op = Operation.LESS_THAN_OR_EQUAL, fieldName = "purchaseDate")
   @PastOrPresent(message = ConstraintMessages.PAST_OR_PRESENT)
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate purchaseDateEnd;
 
   @FilterOperation(op = Operation.GREATER_THAN_OR_EQUAL, fieldName = "price")

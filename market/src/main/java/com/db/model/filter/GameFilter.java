@@ -13,6 +13,7 @@ import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @FilterModel(Game.class)
 @Data
@@ -28,10 +29,12 @@ public class GameFilter {
 
   @FilterOperation(op = Operation.GREATER_THAN_OR_EQUAL, fieldName = "releaseDate")
   @PastOrPresent(message = ConstraintMessages.PAST_OR_PRESENT)
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate releaseDateBeg;
 
   @FilterOperation(op = Operation.LESS_THAN_OR_EQUAL, fieldName = "releaseDate")
   @PastOrPresent(message = ConstraintMessages.PAST_OR_PRESENT)
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate releaseDateEnd;
 
   @FilterOperation(op = Operation.GREATER_THAN_OR_EQUAL, fieldName = "price")

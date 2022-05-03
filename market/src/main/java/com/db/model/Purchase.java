@@ -1,5 +1,6 @@
 package com.db.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import javax.persistence.Column;
@@ -37,6 +38,7 @@ public class Purchase {
     private Integer itemId;
 
     @Column(name = "purchase_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate purchaseDate;
 
     @Column(name = "price")

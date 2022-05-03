@@ -1,5 +1,6 @@
 package com.db.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import javax.persistence.Column;
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "games")
@@ -35,6 +37,7 @@ public class Game {
   private Integer developerId;
 
   @Column(name = "release_date")
+  @JsonFormat(pattern = "yyyy-MM-dd")
   private LocalDate releaseDate;
 
   @Column(name = "price")
