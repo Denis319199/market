@@ -18,14 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-@RequestMapping("/item/image")
+@RequestMapping("/item/{itemId}/image")
 @RequiredArgsConstructor
 public class ItemsImagesController {
   private final ItemsService itemsService;
 
-  @GetMapping(
-      value = "/{itemId}",
-      produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
+  @GetMapping(produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
   @ResponseStatus(HttpStatus.OK)
   @Operation
   public byte[] getItemsImage(
