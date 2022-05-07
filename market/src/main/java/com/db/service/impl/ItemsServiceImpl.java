@@ -41,6 +41,8 @@ public class ItemsServiceImpl implements ItemsService {
   @Transactional(isolation = Isolation.READ_UNCOMMITTED)
   public Item insertItem(Item item) throws ItemsServiceException {
     try {
+      item.setIsImagePresented(false);
+
       return itemsRepo.save(item);
     } catch (DataAccessException ex) {
       throw new ItemsServiceException(ex.getMessage());

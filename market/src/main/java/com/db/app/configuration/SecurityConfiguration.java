@@ -38,6 +38,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .disable()
         .logout()
         .disable()
+        .httpBasic()
+        .disable()
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 

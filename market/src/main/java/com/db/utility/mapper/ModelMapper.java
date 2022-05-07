@@ -53,9 +53,10 @@ public class ModelMapper {
     getters.forEach(
         (methodName, method) -> {
           try {
-            setters
-                .get(methodName.replaceFirst("get", "set"))
-                .invoke(target, method.invoke(source));
+            Object obj = method.invoke(source);
+            if (obj != null && method.invoke(target) == null) {
+              setters.get(methodName.replaceFirst("get", "set")).invoke(target, obj);
+            }
           } catch (Exception ignore) {
           }
         });

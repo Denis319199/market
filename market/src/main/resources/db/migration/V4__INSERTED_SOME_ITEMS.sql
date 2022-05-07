@@ -1998,3 +1998,5 @@ INSERT INTO items (id, name, game_id)
 VALUES (999, 'Cervus duvauceli', 96);
 INSERT INTO items (id, name, game_id)
 VALUES (1000, 'Milvago chimachima', 35);
+
+ALTER SEQUENCE items_id_seq RESTART WITH 1000;
